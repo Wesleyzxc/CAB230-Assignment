@@ -1,124 +1,79 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
-
+import { RegisterButton, LoginButton } from "./api";
 import "./index.css";
 
-function RegisterButton(){
-  var returnedMessage
-   const fetchToken = () => {
-    fetch("https://cab230.hackhouse.sh/register", {
-      method: "POST",
-      body: 'email=n9972676%40qut.edu.au&password=testaccount',
-      headers: {
-        "Content-type": "application/x-www-form-urlencoded"
-      }
-    })
-      .then(function (response) {
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error("Network response was not ok");
-      })
-      .then(function (result) {
-        console.log(result);
-        ;
-      })
-      .catch(function (error) {
-        returnedMessage = error.message;
-        console.log(returnedMessage);
-        console.log("There has been a problem with registering. Are you already registered? ", error.message);
-      });
-  }
-  return (
-    <div>
-      <p>Register your account {returnedMessage}</p>
-      <button onClick={fetchToken}>Register!</button>
-      
-    </div >
-  )
-}
-
-
-function LoginButton() {
-  const fetchToken = () => {
-    fetch("https://cab230.hackhouse.sh/login", {
-      method: "POST",
-      body: 'email=n9972676%40qut.edu.au&password=testaccount',
-      headers: {
-        "Content-type": "application/x-www-form-urlencoded"
-      }
-    })
-      .then(function (response) {
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error("Network response was not ok");
-      })
-      .then(function (result) {
-        console.log(result);
-      })
-      .catch(function (error) {
-        console.log("There has been a problem with your fetch operation: ", error.message);
-      });
-  }
-  return (
-    <div>
-      <p>Login details</p>
-      <button onClick={fetchToken}>Login</button>
-    </div >
-  )
-}
-
-function getOffences() {
+function GetOffences() {
   return fetch("https://cab230.hackhouse.sh/offences")
-      .then(function (response) {
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error("Network response was not ok");
-      })
-      .catch(function (error) {
-        console.log("There has been a problem with your fetch operation: ", error.message);
-      });
-  }
+    .then(function (response) {
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error("Network response was not ok");
 
-  function useOffences(){
-    const [loading, setLoading] = useState(true);
-    const [offences, setOffences] = useState();
-    const [error, setError] = useState(null);
-
-    useEffect(() => {
-      getOffences()
-        .then(offences => {
-          setOffences(offences);
-          setLoading(false);
-        })
-        .catch(e => {
-          setError(e);
-          setLoading(false);
-        });
+    })
+    .then(function (response) {
+      return response.offences;
+    })
+    .catch(function (error) {
+      console.log("There has been a problem with your fetch operation: ", error.message);
     });
-  
-    return {
-      loading,
-      offences,
-      error: null
-    };
-  }
+}
 
+function UseOffences() {
+  const [offences, setOffences] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    GetOffences()
+      .then(offence => {
+        console.log(offence);
+        setOffences(offence);
+      })
+      .catch(e => {
+        setError(e);
+
+      })
+  }, []);
+
+  return {
+    offences, error: null
+  }
+}
+
+function testButton() {
+  const { offences, error } = UseOffences();
+  return (
+    <ul>
+      {offences.map(offence =>
+        (
+          <li>{offence}</li>
+        ))}
+    </ul>
+  );
+
+}
+
+function OffenceButton() {
+  testButton();
+
+
+}
 
 function App() {
-  const { loading, offences, error} = useOffences();
-  if (loading) {
-    return <p>Loading...</p>
-  }
+
 
   return (
     // how to get padding
     <div className="Credentials">
       <RegisterButton />
       <LoginButton />
-    </div>
+      <br></br>
+      <button onClick={OffenceButton()}>List offences</button>
+
+    </div >
+
+
   );
 }
 

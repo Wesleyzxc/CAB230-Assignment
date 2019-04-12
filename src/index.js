@@ -39,13 +39,54 @@ function UseOffences() {
   }
 }
 
-function TestButton(props) {
+function GridOffence(props) {
   return (
     <div className="grid-item">{props.eachOffence}</div>
   );
 
 }
 
+function Form(props) {
+  const [name, setName] = useState("");
+  const [nameError, setNameError] = useState(null);
+  console.log(props);
+  return (
+    <div className="App">
+      <form
+        onSubmit={event => {
+          event.preventDefault();
+          console.log(event.target.name.value);
+        }}
+      >
+        <label htmlFor="name">Your email:  </label>
+
+        <input
+          id="name"
+          name="name"
+          type="text"
+          value={name}
+          onChange={event => {
+            const { value } = event.target;
+            if (!/[0-9]/.test(value)) {
+              setNameError(null);
+            } else {
+              setNameError("You can't input numbers");
+            }
+            setName(value);
+          }}
+        />
+        <br></br>
+
+        <label htmlFor="password"> Your password:  </label>
+        <input id="password" password="password" type="password" />
+
+        {nameError != null ? <p>Error: {nameError}</p> : null}
+        <br></br>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  );
+}
 
 function App() {
   const [offenceList, setOffences] = useState([]);
@@ -55,11 +96,12 @@ function App() {
   if (loading) {
     return <h1>Loading...</h1>
   }
-  // console.log(fetchOffence);
+
   return (
-    // how to get padding
-    <div className="Credentials">
+    <div className="App">
       <RegisterButton />
+
+      <Form />
       <LoginButton />
       <br></br>
 
@@ -69,7 +111,7 @@ function App() {
 
       <div className="grid-container">
         {offenceList.map(offence => (
-          <TestButton key={offenceList.indexOf(offence)} eachOffence={offence} />
+          <GridOffence key={offenceList.indexOf(offence)} eachOffence={offence} />
         ))}
       </div>
 

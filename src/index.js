@@ -12,9 +12,6 @@ function GetOffences() {
       throw new Error("Network response was not ok");
 
     })
-    .then(function (response) {
-      return response.offences;
-    })
     .catch(function (error) {
       console.log("There has been a problem with your fetch operation: ", error.message);
     });
@@ -23,12 +20,13 @@ function GetOffences() {
 function UseOffences() {
   const [offences, setOffences] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     GetOffences()
-      .then(offence => {
-        console.log(offence);
-        setOffences(offence);
+      .then(offences => {
+        setOffences(offences.offences);
+        setLoading(false);
       })
       .catch(e => {
         setError(e);
@@ -37,39 +35,43 @@ function UseOffences() {
   }, []);
 
   return {
-    offences, error: null
+    offences, error: null, loading
   }
 }
 
-function testButton() {
-  const { offences, error } = UseOffences();
+function TestButton(props) {
   return (
-    <ul>
-      {offences.map(offence =>
-        (
-          <li>{offence}</li>
-        ))}
-    </ul>
+    <div className="grid-item">{props.eachOffence}</div>
   );
 
 }
 
-function OffenceButton() {
-  testButton();
-
-
-}
 
 function App() {
+  const [offenceList, setOffences] = useState([]);
 
+  const { offences, error, loading } = UseOffences();
 
+  if (loading) {
+    return <h1>Loading...</h1>
+  }
+  // console.log(fetchOffence);
   return (
     // how to get padding
     <div className="Credentials">
       <RegisterButton />
       <LoginButton />
       <br></br>
-      <button onClick={OffenceButton()}>List offences</button>
+
+      <button onClick={() =>
+        setOffences(offences)
+      }>List offences</button>
+
+      <div className="grid-container">
+        {offenceList.map(offence => (
+          <TestButton key={offenceList.indexOf(offence)} eachOffence={offence} />
+        ))}
+      </div>
 
     </div >
 

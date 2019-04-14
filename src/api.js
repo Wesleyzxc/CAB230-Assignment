@@ -3,12 +3,13 @@ import ReactDOM from "react-dom";
 
 
 
-export function RegisterButton() {
+export function RegisterForm() {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [registerState, setRegisterState] = useState(null);
     return (
         <div className="RegisterForm">
+            <h3>Register</h3>
             <form
                 onSubmit={(event) => {
                     event.preventDefault();
@@ -16,9 +17,10 @@ export function RegisterButton() {
                     let nameStr = name;
                     let passStr = password;
 
+
                     fetch("https://cab230.hackhouse.sh/register", {
                         method: "POST",
-                        body: 'email=n9972676%40qut.edu.au&password=testaccount',
+                        body: 'email=' + nameStr + '&password=' + passStr,
                         headers: {
                             "Content-type": "application/x-www-form-urlencoded"
                         }
@@ -31,14 +33,16 @@ export function RegisterButton() {
                         })
                         .then(function (result) {
                             console.log(result);
+                            setRegisterState(result.message);
 
                         })
                         .catch(function (error) {
                             console.log("There has been a problem with registering. Are you already registered? ", error.message);
+                            setRegisterState("There has been a problem with registering. Are you already registered?");
                         });
                 }}
             >
-                <label htmlFor="regName">Your email:  </label>
+                <label htmlFor="regName">Your username:  </label>
 
                 <input
                     id="regName"
@@ -76,6 +80,7 @@ export function LoginForm(props) {
     const [loginState, setLoginState] = useState(null);
     return (
         <div className="LoginForm">
+            <h3>Login</h3>
             <form
                 onSubmit={(event) => {
                     event.preventDefault();
@@ -134,34 +139,4 @@ export function LoginForm(props) {
             </form>
         </div >
     );
-}
-
-export function LoginButton() {
-    const fetchToken = () => {
-        fetch("https://cab230.hackhouse.sh/login", {
-            method: "POST",
-            body: 'email=n9972676%40qut.edu.au&password=testaccount',
-            headers: {
-                "Content-type": "application/x-www-form-urlencoded"
-            }
-        })
-            .then(function (response) {
-                if (response.ok) {
-                    return response.json();
-                }
-                throw new Error("Network response was not ok");
-            })
-            .then(function (result) {
-                console.log(result);
-            })
-            .catch(function (error) {
-                console.log("There has been a problem with your fetch operation: ", error.message);
-            });
-    }
-    return (
-        <div>
-            <p>Login details</p>
-            <button onClick={fetchToken}>Login</button>
-        </div >
-    )
 }

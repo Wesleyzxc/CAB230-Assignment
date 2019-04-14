@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { RegisterForm, LoginForm } from "./api";
 import "./index.css";
+import { fail } from "assert";
 
 function GetOffences() {
   return fetch("https://cab230.hackhouse.sh/offences")
@@ -47,10 +48,10 @@ function GridOffence(props) {
 }
 
 function Search() {
-  //setResult(result);
-  //console.log(result);
   const [searchResult, setResults] = useState([]);
   const [searchParam, setSearchParam] = useState("");
+  const [failedSearch, setFailedSearch] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   return (
     <div>
@@ -80,6 +81,7 @@ function Search() {
             })
             .catch(function (error) {
               setResults([]);
+              setFailedSearch("Your search parameters are invalid");
               console.log(
                 "There has been a problem with your fetch operation: "
               );
@@ -95,18 +97,29 @@ function Search() {
           onChange={searchEvent => {
             const { value } = searchEvent.target;
             setSearchParam(value);
+
           }}
         />
         <br />
-        <button type="submit">Search</button>
-      </form>
+        <button type="submit" onClick={() => setFailedSearch(null)}>Search</button>
 
-      {searchResult.map(offence => (
-        <p key={offence.LGA}>
-          {offence.LGA}: {offence.total}
-        </p>
-      ))}
-    </div>
+      </form>
+      <button onClick={() => {
+        setResults([]);
+        setFailedSearch(null);
+      }
+      }>Clear search</button>
+
+      {failedSearch != null ? <p>{failedSearch}</p> : null}
+
+      {
+        searchResult.map(offence => (
+          <p key={offence.LGA}>
+            {offence.LGA}: {offence.total}
+          </p>
+        ))
+      }
+    </div >
   );
 }
 
@@ -129,6 +142,8 @@ function App() {
       <button onClick={() =>
         setOffences(offences)
       }>List offences</button>
+
+      <button onClick={() => setOffences([])}>Clear offences</button>
 
       <div className="grid-container">
         {offenceList.map(offence => (

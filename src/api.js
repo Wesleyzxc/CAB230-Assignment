@@ -32,7 +32,7 @@ export function RegisterForm() {
                             throw new Error("Network response was not ok");
                         })
                         .then(function (result) {
-                            console.log(result);
+                            //console.log(result); // register message 
                             setRegisterState(result.message);
 
                         })
@@ -84,7 +84,7 @@ export function LoginForm(props) {
             <form
                 onSubmit={(event) => {
                     event.preventDefault();
-                    console.log(name, password);
+                    //console.log(name, password); // form inputs
                     let nameStr = name;
                     let passStr = password;
 
@@ -102,7 +102,7 @@ export function LoginForm(props) {
                             throw new Error("Network response was not ok");
                         })
                         .then(function (result) {
-                            console.log(result);
+                            // console.log(result); // token
                             setLoginState("You logged in successfully")
                         })
                         .catch(function (error) {

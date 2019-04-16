@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
-import { get } from "https";
 
 
 
@@ -75,7 +74,7 @@ export function RegisterForm() {
 
 }
 
-function getToken(nameStr, passStr, props) {
+function getToken(nameStr, passStr, props, handleLoginState) {
 
     return fetch("https://cab230.hackhouse.sh/login", {
         method: "POST",
@@ -92,11 +91,13 @@ function getToken(nameStr, passStr, props) {
         })
         .then(function (result) {
             props.handleToken(result.token)
+            handleLoginState("You have logged in successfully!")
             // return console.log(result.token); // token
         })
         .catch(function (error) {
             console.log("There has been a problem with your fetch operation: ", error.message);
             props.handleToken("")
+            handleLoginState("Your account and password does not match.")
         });
 }
 
@@ -104,6 +105,10 @@ export function LoginForm(props) {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [loginState, setLoginState] = useState(null);
+
+    const handleLoginState = (event) => {
+        setLoginState(event);
+    }
     return (
 
         <div className="LoginForm">
@@ -112,16 +117,7 @@ export function LoginForm(props) {
                 onSubmit={(event) => {
                     event.preventDefault();
                     //console.log(name, password); // form inputs
-                    let nameStr = name;
-                    let passStr = password;
-                    getToken(nameStr, passStr, props);
-                    if (props.token != "") {
-                        console.log(props.token)
-                        setLoginState("You have logged in successfully!")
-                    }
-                    else {
-                        setLoginState("Your account and password does not match.")
-                    }
+                    getToken(name, password, props, handleLoginState);
                 }}
             >
                 <label htmlFor="name">Your email:  </label>

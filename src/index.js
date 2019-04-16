@@ -57,8 +57,7 @@ function Search(props) {
       <form
         onSubmit={event => {
           event.preventDefault();
-          let offenceStr = searchParam;
-          let url = "https://cab230.hackhouse.sh/search?offence=" + offenceStr;
+          let url = "https://cab230.hackhouse.sh/search?offence=" + searchParam;
           fetch(url, {
             method: "GET",
             headers: {
@@ -136,6 +135,7 @@ function App() {
 
   const handleToken = (event) => {
     setToken(event);
+    console.log(token);
   }
 
   return (

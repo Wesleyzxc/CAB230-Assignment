@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
+import { get } from "https";
 
 
 
@@ -74,11 +75,37 @@ export function RegisterForm() {
 
 }
 
+function getToken(nameStr, passStr, props) {
+
+    return fetch("https://cab230.hackhouse.sh/login", {
+        method: "POST",
+        body: 'email=' + nameStr + '&password=' + passStr,
+        headers: {
+            "Content-type": "application/x-www-form-urlencoded"
+        }
+    })
+        .then(function (response) {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error("Network response was not ok");
+        })
+        .then(function (result) {
+            props.handleToken(result.token)
+            // return console.log(result.token); // token
+        })
+        .catch(function (error) {
+            console.log("There has been a problem with your fetch operation: ", error.message);
+            props.handleToken("")
+        });
+}
+
 export function LoginForm(props) {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [loginState, setLoginState] = useState(null);
     return (
+
         <div className="LoginForm">
             <h3>Login</h3>
             <form
@@ -87,28 +114,14 @@ export function LoginForm(props) {
                     //console.log(name, password); // form inputs
                     let nameStr = name;
                     let passStr = password;
-
-                    fetch("https://cab230.hackhouse.sh/login", {
-                        method: "POST",
-                        body: 'email=' + nameStr + '&password=' + passStr,
-                        headers: {
-                            "Content-type": "application/x-www-form-urlencoded"
-                        }
-                    })
-                        .then(function (response) {
-                            if (response.ok) {
-                                return response.json();
-                            }
-                            throw new Error("Network response was not ok");
-                        })
-                        .then(function (result) {
-                            // console.log(result); // token
-                            setLoginState("You logged in successfully")
-                        })
-                        .catch(function (error) {
-                            console.log("There has been a problem with your fetch operation: ", error.message);
-                            setLoginState("Your email and password does not match. Did you register?");
-                        });
+                    getToken(nameStr, passStr, props);
+                    if (props.token != "") {
+                        console.log(props.token)
+                        setLoginState("You have logged in successfully!")
+                    }
+                    else {
+                        setLoginState("Your account and password does not match.")
+                    }
                 }}
             >
                 <label htmlFor="name">Your email:  </label>

@@ -47,12 +47,11 @@ function GridOffence(props) {
 
 }
 
-function Search() {
+function Search(props) {
   const [searchResult, setResults] = useState([]);
   const [searchParam, setSearchParam] = useState("");
   const [failedSearch, setFailedSearch] = useState(null);
   const [loading, setLoading] = useState(true);
-
   return (
     <div>
       <form
@@ -65,7 +64,7 @@ function Search() {
             headers: {
               Authorization:
                 "Bearer " +
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjo0NjU3LCJlbWFpbCI6Indlc2xleTEifSwiaWF0IjoxNTU1MjA1ODkzLCJleHAiOjE1NTUyOTIyOTN9.8rBaEj7l6K1HLndeHowt7ktwMTfw4ZJ_AcyPZaXrVpM",
+                props.token,
               "Content-Type": "application/x-www-form-urlencoded"
             }
           })
@@ -88,11 +87,12 @@ function Search() {
             });
         }}
       >
-        <label htmlFor="searchCrime">Search Crime</label>
+        <label>Search Crime</label>
         <input
-          id="searchCrime"
-          name="searchCrime"
-          type="text"
+          aria-labelledby="search-button"
+          id="search"
+          name="search"
+          type="search"
           value={searchParam}
           onChange={searchEvent => {
             const { value } = searchEvent.target;
@@ -127,17 +127,22 @@ function Search() {
 
 function App() {
   const [offenceList, setOffences] = useState([]);
-
+  const [token, setToken] = useState("");
   const { offences, error, loading } = UseOffences();
 
   if (loading) {
     return <h1>Loading...</h1>
   }
 
+  const handleToken = (event) => {
+    setToken(event);
+  }
+
   return (
     <div className="App">
       <RegisterForm />
-      <LoginForm />
+
+      <LoginForm handleToken={handleToken} token={token} />
       <br></br>
       <button onClick={() =>
         setOffences(offences)
@@ -151,7 +156,7 @@ function App() {
         ))}
       </div>
 
-      <Search />
+      <Search token={token} />
 
     </div >
 

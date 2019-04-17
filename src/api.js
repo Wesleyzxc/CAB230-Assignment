@@ -14,13 +14,10 @@ export function RegisterForm() {
                 onSubmit={(event) => {
                     event.preventDefault();
                     console.log(name, password);
-                    let nameStr = name;
-                    let passStr = password;
-
 
                     fetch("https://cab230.hackhouse.sh/register", {
                         method: "POST",
-                        body: 'email=' + nameStr + '&password=' + passStr,
+                        body: 'email=' + name + '&password=' + password,
                         headers: {
                             "Content-type": "application/x-www-form-urlencoded"
                         }
@@ -145,7 +142,14 @@ export function LoginForm(props) {
 
                 <br></br>
                 <button type="submit">Login</button>
+
             </form>
+            <button onClick={() => {
+                props.clearToken();
+                setName("");
+                setPassword("");
+                setLoginState(null);
+            }}>Log out</button>
         </div >
     );
 }

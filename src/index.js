@@ -135,14 +135,17 @@ function App() {
 
   const handleToken = (event) => {
     setToken(event);
-    console.log(token);
+  }
+
+  const clearToken = () => {
+    setToken("")
   }
 
   return (
     <div className="App">
       <RegisterForm />
 
-      <LoginForm handleToken={handleToken} token={token} />
+      <LoginForm handleToken={handleToken} token={token} clearToken={clearToken} />
       <br></br>
       <button onClick={() =>
         setOffences(offences)
@@ -155,9 +158,7 @@ function App() {
           <GridOffence key={offenceList.indexOf(offence)} eachOffence={offence} />
         ))}
       </div>
-
-      <Search token={token} />
-
+      {token == "" ? <p>Login to search</p> : <Search token={token} />}
     </div >
 
 

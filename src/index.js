@@ -147,18 +147,23 @@ function App() {
 
       <LoginForm handleToken={handleToken} token={token} clearToken={clearToken} />
       <br></br>
-      <button onClick={() =>
-        setOffences(offences)
-      }>List offences</button>
 
-      <button onClick={() => setOffences([])}>Clear offences</button>
+
+
 
       <div className="grid-container">
+        <button onClick={() =>
+          setOffences(offences)
+        }>List offences</button>
+        <button onClick={() => setOffences([])}>Clear offences</button>
+        <br></br>
         {offenceList.map(offence => (
           <GridOffence key={offenceList.indexOf(offence)} eachOffence={offence} />
         ))}
       </div>
-      {token == "" ? <p>Login to search</p> : <Search token={token} />}
+      <div className="lockLogin">
+        {token === "" ? <p>Login to search</p> : <Search token={token} />}
+      </div>
     </div >
 
 

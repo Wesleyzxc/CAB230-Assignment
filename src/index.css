@@ -17,6 +17,25 @@ code {
   display: grid;
   grid-template-columns: auto auto auto;  
   padding: 10px;
+  border-radius: 25px;
+  
+}
+
+.grid-container button {
+  background-color: white; /* Green */
+  border: none;
+  color: black;
+  min-width: 100%;
+  padding: 10px 30px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+
+.grid-container button:hover {
+  background-color: #4CAF50; /* Green */
+  color: white;
 }
 
 .grid-item {
@@ -24,4 +43,13 @@ code {
   padding: 5px;
   font-size: 14px;
   text-align: center;
+}
+
+.lockLogin{
+  text-align: center;
+  padding: 7em;
+  height: calc(100vh -14em);
+  color: black;
+  background: lightgreen;
+  border-radius: 25px;
 }

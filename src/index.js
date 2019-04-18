@@ -127,9 +127,9 @@ function Search(props) {
       }
       }>Clear search</button>
 
-      {failedSearch !== null ? <p>{failedSearch}</p> : null}      
+      {failedSearch !== null ? <p>{failedSearch}</p> : null}
 
-      {searchResult.length === 0 ? 
+      {searchResult.length === 0 ?
         <p>Empty search</p> : searchResult.map(offence => (
           <p key={offence.LGA}>
             {offence.LGA}: {offence.total}
@@ -159,6 +159,8 @@ function App() {
     setToken("")
   }
 
+  const toggleOffence = () => { offenceList.length > 0 ? setOffences([]) : setOffences(offences) }
+
   return (
     <div className="App">
       <RegisterForm />
@@ -166,15 +168,9 @@ function App() {
       <LoginForm handleToken={handleToken} token={token} clearToken={clearToken} />
       <br></br>
 
-
-
-
+      <button id="offenceButton" onClick={toggleOffence}>Toggle offences</button>
       <div className="grid-container">
-        <button onClick={() =>
-          setOffences(offences)
-        }>List offences</button>
-        <button onClick={() => setOffences([])}>Clear offences</button>
-        <br></br>
+
         {offenceList.map(offence => (
           <GridOffence key={offenceList.indexOf(offence)} eachOffence={offence} />
         ))}

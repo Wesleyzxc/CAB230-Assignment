@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { RegisterForm, LoginForm } from "./api";
 import "./index.css";
-import { fail } from "assert";
 
 function GetOffences() {
   return fetch("https://cab230.hackhouse.sh/offences")
@@ -50,14 +49,19 @@ function GridOffence(props) {
 function Search(props) {
   const [searchResult, setResults] = useState([]);
   const [searchParam, setSearchParam] = useState("");
+  const [areaParam, setAreaParam] = useState("");
   const [failedSearch, setFailedSearch] = useState(null);
   const [loading, setLoading] = useState(true);
+
   return (
     <div>
       <form
         onSubmit={event => {
           event.preventDefault();
           let url = "https://cab230.hackhouse.sh/search?offence=" + searchParam;
+          if (areaParam !== "") {
+            url += "&area=" + areaParam;
+          }
           fetch(url, {
             method: "GET",
             headers: {
@@ -86,7 +90,7 @@ function Search(props) {
             });
         }}
       >
-        <label>Search Crime</label>
+        <label>Search Crime:</label>
         <input
           aria-labelledby="search-button"
           id="search"
@@ -99,6 +103,19 @@ function Search(props) {
 
           }}
         />
+        <br></br>
+        <label>By Area:</label>
+        <input
+          aria-labelledby="search-button"
+          id="search"
+          name="search"
+          type="search"
+          value={areaParam}
+          onChange={area => {
+            const { value } = area.target;
+            setAreaParam(value);
+          }}
+        />
         <br />
         <button type="submit" onClick={() => setFailedSearch(null)}>Search</button>
 
@@ -106,13 +123,14 @@ function Search(props) {
       <button onClick={() => {
         setResults([]);
         setFailedSearch(null);
+        setSearchParam("");
       }
       }>Clear search</button>
 
-      {failedSearch != null ? <p>{failedSearch}</p> : null}
+      {failedSearch !== null ? <p>{failedSearch}</p> : null}      
 
-      {
-        searchResult.map(offence => (
+      {searchResult.length === 0 ? 
+        <p>Empty search</p> : searchResult.map(offence => (
           <p key={offence.LGA}>
             {offence.LGA}: {offence.total}
           </p>

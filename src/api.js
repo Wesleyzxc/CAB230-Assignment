@@ -1,45 +1,92 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 
+export function GetOffences() {
+    return fetch("https://cab230.hackhouse.sh/offences")
+        .then(function (response) {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error("Network response was not ok");
 
+        })
+        .catch(function (error) {
+            console.log("There has been a problem with your fetch operation: ", error.message);
+        });
+}
+
+export function UseOffences() {
+    const [offences, setOffences] = useState([]);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        GetOffences()
+            .then(offences => {
+                setOffences(offences.offences);
+                setLoading(false);
+            })
+            .catch(e => {
+                setError(e);
+
+            })
+    }, []);
+
+    return {
+        offences, error: null, loading
+    }
+}
+
+function fetchRegister(name, password, setRegister) {
+
+    fetch("https://cab230.hackhouse.sh/register", {
+        method: "POST",
+        body: 'email=' + name + '&password=' + password,
+        headers: {
+            "Content-type": "application/x-www-form-urlencoded"
+        }
+    })
+        .then(function (response) {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error("Network response was not ok");
+        })
+        .then(function (result) {
+            //console.log(result); // register message 
+            setRegister("You've successfully register! Login to search what you need");
+
+        })
+        .catch(function (error) {
+            console.log("There has been a problem with registering. Are you already registered? ", error.message);
+            setRegister("There has been a problem with registering. Are you already registered?");
+        });
+}
 
 export function RegisterForm() {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [registerState, setRegisterState] = useState(null);
+    const setRegister = (event) => {
+        setRegisterState(event)
+    }
     return (
         <div className="RegisterForm">
             <h3>Register</h3>
             <form
                 onSubmit={(event) => {
                     event.preventDefault();
-                    console.log(name, password);
+                    if (name !== "" && password !== "") {
 
-                    fetch("https://cab230.hackhouse.sh/register", {
-                        method: "POST",
-                        body: 'email=' + name + '&password=' + password,
-                        headers: {
-                            "Content-type": "application/x-www-form-urlencoded"
-                        }
-                    })
-                        .then(function (response) {
-                            if (response.ok) {
-                                return response.json();
-                            }
-                            throw new Error("Network response was not ok");
-                        })
-                        .then(function (result) {
-                            //console.log(result); // register message 
-                            setRegisterState(result.message);
-
-                        })
-                        .catch(function (error) {
-                            console.log("There has been a problem with registering. Are you already registered? ", error.message);
-                            setRegisterState("There has been a problem with registering. Are you already registered?");
-                        });
+                        console.log(name, password);
+                        fetchRegister(name, password, setRegister);
+                    }
+                    else {
+                        setRegisterState("Your email and password field can't be empty!")
+                    }
                 }}
             >
-                <label htmlFor="regName">Your username:  </label>
+                <label htmlFor="regName">Your email:  </label>
 
                 <input
                     id="regName"
@@ -94,7 +141,7 @@ function getToken(nameStr, passStr, props, handleLoginState) {
         .catch(function (error) {
             console.log("There has been a problem with your fetch operation: ", error.message);
             props.handleToken("")
-            handleLoginState("Your account and password does not match.")
+            handleLoginState("Your email and password does not match.")
         });
 }
 
@@ -114,7 +161,11 @@ export function LoginForm(props) {
                 onSubmit={(event) => {
                     event.preventDefault();
                     //console.log(name, password); // form inputs
-                    getToken(name, password, props, handleLoginState);
+                    if (name !== "" && password !== "")
+                        getToken(name, password, props, handleLoginState);
+                    else {
+                        setLoginState("Your email and password fields can't be empty!")
+                    }
                 }}
             >
                 <label htmlFor="name">Your email:  </label>
@@ -144,12 +195,28 @@ export function LoginForm(props) {
                 <button type="submit">Login</button>
 
             </form>
-            <button onClick={() => {
+            {props.token === "" ? <p></p> : <button onClick={() => {
                 props.clearToken();
                 setName("");
                 setPassword("");
                 setLoginState(null);
-            }}>Log out</button>
+            }}>Log out</button>}
+
         </div >
     );
+}
+
+export function GetAreas() {
+    return fetch("https://cab230.hackhouse.sh/areas")
+        .then(function (response) {
+            if (response.ok) {
+                console.log(response.json());
+                return (response.json())
+            }
+            throw new Error("Network response was not ok");
+
+        })
+        .catch(function (error) {
+            console.log("There has been a problem with your fetch operation: ", error.message);
+        });
 }

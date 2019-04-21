@@ -1,47 +1,18 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
-import { RegisterForm, LoginForm } from "./api";
+import { RegisterForm, LoginForm, UseOffences, GetAreas } from "./api";
 import "./index.css";
 
-function GetOffences() {
-  return fetch("https://cab230.hackhouse.sh/offences")
-    .then(function (response) {
-      if (response.ok) {
-        return response.json();
-      }
-      throw new Error("Network response was not ok");
-
-    })
-    .catch(function (error) {
-      console.log("There has been a problem with your fetch operation: ", error.message);
-    });
-}
-
-function UseOffences() {
-  const [offences, setOffences] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    GetOffences()
-      .then(offences => {
-        setOffences(offences.offences);
-        setLoading(false);
-      })
-      .catch(e => {
-        setError(e);
-
-      })
-  }, []);
-
-  return {
-    offences, error: null, loading
-  }
-}
-
 function GridOffence(props) {
+  if (props.offenceList.length <= 0) {
+    return null
+  }
   return (
-    <div className="grid-item">{props.eachOffence}</div>
+    <div className="grid-container">
+      {props.offenceList.map(offence => (
+        <div className="grid-item">{offence}</div>
+      ))}
+    </div>
   );
 
 }
@@ -53,6 +24,10 @@ function Search(props) {
   const [failedSearch, setFailedSearch] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const arealist = GetAreas
+  if (props.token === "") {
+    return (<p>Login to search</p>)
+  }
   return (
     <div>
       <form
@@ -124,13 +99,14 @@ function Search(props) {
         setResults([]);
         setFailedSearch(null);
         setSearchParam("");
+        setAreaParam("");
       }
       }>Clear search</button>
 
       {failedSearch !== null ? <p>{failedSearch}</p> : null}
 
       {searchResult.length === 0 ?
-        <p>Empty search</p> : searchResult.map(offence => (
+        <p>Current search is empty</p> : searchResult.map(offence => (
           <p key={offence.LGA}>
             {offence.LGA}: {offence.total}
           </p>
@@ -139,8 +115,6 @@ function Search(props) {
     </div >
   );
 }
-
-
 
 function App() {
   const [offenceList, setOffences] = useState([]);
@@ -169,14 +143,9 @@ function App() {
       <br></br>
 
       <button id="offenceButton" onClick={toggleOffence}>Toggle offences</button>
-      <div className="grid-container">
-
-        {offenceList.map(offence => (
-          <GridOffence key={offenceList.indexOf(offence)} eachOffence={offence} />
-        ))}
-      </div>
+      <GridOffence offenceList={offenceList} />
       <div className="lockLogin">
-        {token === "" ? <p>Login to search</p> : <Search token={token} />}
+        <Search token={token} />
       </div>
     </div >
 

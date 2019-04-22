@@ -63,12 +63,15 @@ function fetchRegister(name, password, setRegister) {
         });
 }
 
-export function RegisterForm() {
+export function RegisterForm(props) {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [registerState, setRegisterState] = useState(null);
     const setRegister = (event) => {
         setRegisterState(event)
+    }
+    if (props.token !== "") {
+        return null
     }
     return (
         <div className="RegisterForm">
@@ -153,6 +156,20 @@ export function LoginForm(props) {
     const handleLoginState = (event) => {
         setLoginState(event);
     }
+    if (props.token !== "") {
+        return (
+            <div className="loggedIn" >
+                Welcome, {name}!
+                {props.token === "" ? <p></p> : <button onClick={() => {
+                    props.clearToken();
+                    setName("");
+                    setPassword("");
+                    setLoginState(null);
+                }}>Log out</button>}
+            </div >
+
+        )
+    }
     return (
 
         <div className="LoginForm">
@@ -195,12 +212,7 @@ export function LoginForm(props) {
                 <button type="submit">Login</button>
 
             </form>
-            {props.token === "" ? <p></p> : <button onClick={() => {
-                props.clearToken();
-                setName("");
-                setPassword("");
-                setLoginState(null);
-            }}>Log out</button>}
+
 
         </div >
     );

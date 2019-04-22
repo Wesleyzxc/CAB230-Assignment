@@ -24,7 +24,6 @@ function Search(props) {
   const [failedSearch, setFailedSearch] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const arealist = GetAreas
   if (props.token === "") {
     return (<p>Login to search</p>)
   }
@@ -137,21 +136,37 @@ function App() {
 
   return (
     <div className="App">
-      <RegisterForm />
-
+      <RegisterForm token={token} />
       <LoginForm handleToken={handleToken} token={token} clearToken={clearToken} />
       <br></br>
 
-      <button id="offenceButton" onClick={toggleOffence}>Toggle offences</button>
-      <GridOffence offenceList={offenceList} />
-      <div className="lockLogin">
-        <Search token={token} />
-      </div>
+
+      <AfterLoginPage token={token} offenceList={offenceList} toggleOffence={toggleOffence} />
     </div >
 
 
   );
 }
+
+function AfterLoginPage(props) {
+  if (props.token !== "") {
+    return (
+      <div>
+        <button id="offenceButton" onClick={props.toggleOffence}>Toggle offences</button>
+        <GridOffence offenceList={props.offenceList} />
+        <div className="lockLogin">
+          <Search token={props.token} />
+        </div>
+      </div>
+
+    )
+  }
+
+  return (
+    <div className="lockLogin">Login or register first</div>
+  )
+}
+
 
 const rootElement = document.getElementById("root");
 ReactDOM.render(<App />, rootElement);

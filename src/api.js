@@ -37,6 +37,43 @@ export function UseOffences() {
     }
 }
 
+
+export function GetAreas() {
+    return fetch("https://cab230.hackhouse.sh/areas")
+        .then(function (response) {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error("Network response was not ok");
+
+        })
+        .catch(function (error) {
+            console.log("There has been a problem with your fetch operation: ", error.message);
+        });
+}
+
+export function UseAreas() {
+    const [areas, setAreas] = useState([]);
+    const [areaError, setError] = useState(null);
+    const [areaLoading, setLoading] = useState(true);
+
+    useEffect(() => {
+        GetAreas()
+            .then(areas => {
+                setAreas(areas.areas);
+                setLoading(false);
+            })
+            .catch(e => {
+                setError(e);
+
+            })
+    }, []);
+
+    return {
+        areas, areaError: null, areaLoading
+    }
+}
+
 function fetchRegister(name, password, setRegister) {
 
     fetch("https://cab230.hackhouse.sh/register", {
@@ -216,19 +253,4 @@ export function LoginForm(props) {
 
         </div >
     );
-}
-
-export function GetAreas() {
-    return fetch("https://cab230.hackhouse.sh/areas")
-        .then(function (response) {
-            if (response.ok) {
-                console.log(response.json());
-                return (response.json())
-            }
-            throw new Error("Network response was not ok");
-
-        })
-        .catch(function (error) {
-            console.log("There has been a problem with your fetch operation: ", error.message);
-        });
 }

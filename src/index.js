@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
-import { RegisterForm, LoginForm, UseOffences, GetAreas } from "./api";
+import { RegisterForm, LoginForm, UseOffences, UseAreas } from "./api";
 import "./index.css";
 
 function GridOffence(props) {
@@ -104,21 +104,62 @@ function Search(props) {
 
       {failedSearch !== null ? <p>{failedSearch}</p> : null}
 
-      {searchResult.length === 0 ?
+      {/* {searchResult.length === 0 ?
         <p>Current search is empty</p> : searchResult.map(offence => (
           <p key={offence.LGA}>
             {offence.LGA}: {offence.total}
           </p>
         ))
-      }
+      } */}
+      <DisplaySearch searchResult={searchResult} />
     </div >
   );
+}
+
+function DisplaySearch(props) {
+  if (props.searchResult.length === 0) {
+    return <p>Current search is empty</p>
+  }
+  return (
+    <table>
+      <tr>
+        <th>LGA</th>
+        <th>Total</th>
+      </tr>
+      {props.searchResult.map(search => (
+        <tr>
+          <td>{search.LGA}</td>
+          <td>{search.total}</td>
+        </tr>
+      ))}
+    </table>
+  )
+}
+
+function AfterLoginPage(props) {
+  if (props.token !== "") {
+    return (
+      <div>
+        <button id="offenceButton" onClick={props.toggleOffence}>Toggle offences</button>
+        <GridOffence offenceList={props.offenceList} />
+        <div className="lockLogin">
+          <Search token={props.token} />
+        </div>
+      </div>
+
+    )
+  }
+
+  return (
+    <div className="lockLogin">Login or register first</div>
+  )
 }
 
 function App() {
   const [offenceList, setOffences] = useState([]);
   const [token, setToken] = useState("");
   const { offences, error, loading } = UseOffences();
+  const { areas, areaError, areaLoading } = UseAreas();
 
   if (loading) {
     return <h1>Loading...</h1>
@@ -140,7 +181,6 @@ function App() {
       <LoginForm handleToken={handleToken} token={token} clearToken={clearToken} />
       <br></br>
 
-
       <AfterLoginPage token={token} offenceList={offenceList} toggleOffence={toggleOffence} />
     </div >
 
@@ -148,24 +188,6 @@ function App() {
   );
 }
 
-function AfterLoginPage(props) {
-  if (props.token !== "") {
-    return (
-      <div>
-        <button id="offenceButton" onClick={props.toggleOffence}>Toggle offences</button>
-        <GridOffence offenceList={props.offenceList} />
-        <div className="lockLogin">
-          <Search token={props.token} />
-        </div>
-      </div>
-
-    )
-  }
-
-  return (
-    <div className="lockLogin">Login or register first</div>
-  )
-}
 
 
 const rootElement = document.getElementById("root");

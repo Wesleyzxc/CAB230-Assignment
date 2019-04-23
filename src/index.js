@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
-import { RegisterForm, LoginForm, UseOffences, UseAreas } from "./api";
+import { RegisterForm, LoginForm, UseRequest, UseAreas } from "./api";
 import "./index.css";
 
 function GridOffence(props) {
@@ -10,7 +10,7 @@ function GridOffence(props) {
   return (
     <div className="grid-container">
       {props.offenceList.map(offence => (
-        <div className="grid-item">{offence}</div>
+        <div className="grid-item" key={props.offenceList.indexOf(offence)}>{offence}</div>
       ))}
     </div>
   );
@@ -103,14 +103,6 @@ function Search(props) {
       }>Clear search</button>
 
       {failedSearch !== null ? <p>{failedSearch}</p> : null}
-
-      {/* {searchResult.length === 0 ?
-        <p>Current search is empty</p> : searchResult.map(offence => (
-          <p key={offence.LGA}>
-            {offence.LGA}: {offence.total}
-          </p>
-        ))
-      } */}
       <DisplaySearch searchResult={searchResult} />
     </div >
   );
@@ -121,18 +113,31 @@ function DisplaySearch(props) {
     return <p>Current search is empty</p>
   }
   return (
-    <table>
-      <tr>
-        <th>LGA</th>
-        <th>Total</th>
-      </tr>
-      {props.searchResult.map(search => (
-        <tr>
-          <td>{search.LGA}</td>
-          <td>{search.total}</td>
-        </tr>
-      ))}
-    </table>
+    <div>
+      <table>
+        <thead>
+          <select>
+            <option value="" selected>Filter by LGA</option>
+            {props.searchResult.map(search => (
+              <option value={search.LGA}>{search.LGA}</option>
+            ))}</select>
+          <tr>
+            <th>LGA</th>
+            <th>Total</th>
+
+          </tr>
+
+        </thead>
+        {props.searchResult.map(search => (
+          <tbody key={props.searchResult.indexOf(search)}>
+            <tr>
+              <td>{search.LGA}</td>
+              <td>{search.total}</td>
+            </tr>
+          </tbody>
+        ))}
+      </table>
+    </div>
   )
 }
 
@@ -158,8 +163,8 @@ function AfterLoginPage(props) {
 function App() {
   const [offenceList, setOffences] = useState([]);
   const [token, setToken] = useState("");
-  const { offences, error, loading } = UseOffences();
-  const { areas, areaError, areaLoading } = UseAreas();
+  const { offences, error, loading } = UseRequest("https://cab230.hackhouse.sh/offences");
+  const { areas, areaError, areaLoading } = UseRequest("https://cab230.hackhouse.sh/areas");
 
   if (loading) {
     return <h1>Loading...</h1>
@@ -177,6 +182,7 @@ function App() {
 
   return (
     <div className="App">
+      {console.log(areas)}
       <RegisterForm token={token} />
       <LoginForm handleToken={handleToken} token={token} clearToken={clearToken} />
       <br></br>

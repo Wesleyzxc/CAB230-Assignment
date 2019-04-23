@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 
-export function GetOffences() {
-    return fetch("https://cab230.hackhouse.sh/offences")
+function GetRequest(url) {
+    return fetch(url)
         .then(function (response) {
             if (response.ok) {
                 return response.json();
@@ -15,15 +15,17 @@ export function GetOffences() {
         });
 }
 
-export function UseOffences() {
+export function UseRequest(url) {
     const [offences, setOffences] = useState([]);
+    const [areas, setAreas] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        GetOffences()
-            .then(offences => {
-                setOffences(offences.offences);
+        GetRequest(url)
+            .then(data => {
+                setOffences(data.offences);
+                setAreas(data.areas);
                 setLoading(false);
             })
             .catch(e => {
@@ -33,44 +35,7 @@ export function UseOffences() {
     }, []);
 
     return {
-        offences, error: null, loading
-    }
-}
-
-
-export function GetAreas() {
-    return fetch("https://cab230.hackhouse.sh/areas")
-        .then(function (response) {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error("Network response was not ok");
-
-        })
-        .catch(function (error) {
-            console.log("There has been a problem with your fetch operation: ", error.message);
-        });
-}
-
-export function UseAreas() {
-    const [areas, setAreas] = useState([]);
-    const [areaError, setError] = useState(null);
-    const [areaLoading, setLoading] = useState(true);
-
-    useEffect(() => {
-        GetAreas()
-            .then(areas => {
-                setAreas(areas.areas);
-                setLoading(false);
-            })
-            .catch(e => {
-                setError(e);
-
-            })
-    }, []);
-
-    return {
-        areas, areaError: null, areaLoading
+        offences, areas, error: null, loading
     }
 }
 

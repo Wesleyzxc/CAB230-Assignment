@@ -77,21 +77,20 @@ function Search(props) {
 
           }}
         />
-        <br></br>
+        <br />
         <label>By Area:</label>
-        <input
-          aria-labelledby="search-button"
-          id="search"
-          name="search"
-          type="search"
-          value={areaParam}
+        <select type="submit" id="filterLGA"
           onChange={area => {
             const { value } = area.target;
             setAreaParam(value);
-          }}
-        />
+          }}>
+          <option value="" defaultValue>Filter by LGA</option>
+          {props.areas.map(search => (
+            <option value={search} key={(search)}>{search}</option>
+          ))}
+        </select>
         <br />
-        <button type="submit" onClick={() => setFailedSearch(null)}>Search</button>
+        <button onClick={() => setFailedSearch(null)}>Search</button>
 
       </form>
       <button onClick={() => {
@@ -99,6 +98,8 @@ function Search(props) {
         setFailedSearch(null);
         setSearchParam("");
         setAreaParam("");
+        let element = document.getElementById("filterLGA");
+        element.value = "default";
       }
       }>Clear search</button>
 
@@ -109,6 +110,8 @@ function Search(props) {
 }
 
 function DisplaySearch(props) {
+  const [LGA, setLGA] = useState("");
+
   if (props.searchResult.length === 0) {
     return <p>Current search is empty</p>
   }
@@ -116,17 +119,10 @@ function DisplaySearch(props) {
     <div>
       <table>
         <thead>
-          <select>
-            <option value="" selected>Filter by LGA</option>
-            {props.searchResult.map(search => (
-              <option value={search.LGA}>{search.LGA}</option>
-            ))}</select>
           <tr>
             <th>LGA</th>
             <th>Total</th>
-
           </tr>
-
         </thead>
         {props.searchResult.map(search => (
           <tbody key={props.searchResult.indexOf(search)}>
@@ -137,7 +133,7 @@ function DisplaySearch(props) {
           </tbody>
         ))}
       </table>
-    </div>
+    </div >
   )
 }
 
@@ -148,7 +144,7 @@ function AfterLoginPage(props) {
         <button id="offenceButton" onClick={props.toggleOffence}>Toggle offences</button>
         <GridOffence offenceList={props.offenceList} />
         <div className="lockLogin">
-          <Search token={props.token} />
+          <Search token={props.token} areas={props.areas} />
         </div>
       </div>
 
@@ -182,12 +178,11 @@ function App() {
 
   return (
     <div className="App">
-      {console.log(areas)}
       <RegisterForm token={token} />
       <LoginForm handleToken={handleToken} token={token} clearToken={clearToken} />
       <br></br>
 
-      <AfterLoginPage token={token} offenceList={offenceList} toggleOffence={toggleOffence} />
+      <AfterLoginPage token={token} offenceList={offenceList} toggleOffence={toggleOffence} areas={areas} />
     </div >
 
 

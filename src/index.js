@@ -1,7 +1,45 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Component } from "react";
 import ReactDOM from "react-dom";
 import { RegisterForm, LoginForm, UseRequest, UseAreas } from "./api";
 import "./index.css";
+import { Bar, Line, Pie } from 'react-chartjs-2';
+
+
+
+function Chart(props) {
+  let crimeCount = []
+  props.searchResult.map(each => {
+    crimeCount.push(each.total)
+  })
+
+  const data = {
+    labels: props.areas,
+    datasets: [
+      {
+        label: 'Offence count',
+        borderWidth: 1,
+        data: crimeCount,
+        backgroundColor: 'rgba(255,99,132,0.2)',
+        borderColor: 'rgba(255,99,132,1)',
+        borderWidth: 1,
+        hoverBackgroundColor: 'rgba(255,99,132,0.4)',
+        hoverBorderColor: 'rgba(255,99,132,1)',
+      }
+    ]
+  };
+
+  if (props.showChart === false) {
+    return null
+  }
+
+  return (
+    < div className="chart" >
+      <Bar
+        data={data}
+      />
+    </div >
+  )
+}
 
 function GridOffence(props) {
   if (props.offenceList.length <= 0) {
@@ -31,6 +69,53 @@ function SearchFilter(props) {
     </select>
   )
 }
+
+function searchRequest(token, setResults, setFailedSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam) {
+  let url = "https://cab230.hackhouse.sh/search?offence=" + searchParam;
+  if (areaParam !== "") {
+    url += "&area=" + areaParam;
+  }
+  if (ageParam !== "") {
+    url += "&age=" + ageParam;
+  }
+  if (genderParam !== "") {
+    url += "&gender=" + genderParam;
+  }
+  if (yearParam !== "") {
+    url += "&year=" + yearParam;
+  }
+  if (monthParam !== "") {
+    url += "&month=" + monthParam;
+  }
+  fetch(url, {
+    method: "GET",
+    headers: {
+      Authorization:
+        "Bearer " +
+        token,
+      "Content-Type": "application/x-www-form-urlencoded"
+    }
+  })
+    .then(function (response) {
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error("Network response was not ok");
+    })
+    .then(result => {
+      setResults(result.result);
+      return result;
+    })
+    .catch(function (error) {
+      setResults([]);
+      setFailedSearch("Your search parameters are invalid");
+      console.log(
+        "There has been a problem with your fetch operation: "
+      );
+    });
+
+}
+
 function Search(props) {
   const [searchResult, setResults] = useState([]);
   const [searchParam, setSearchParam] = useState("");
@@ -55,49 +140,7 @@ function Search(props) {
       <form
         onSubmit={event => {
           event.preventDefault();
-          let url = "https://cab230.hackhouse.sh/search?offence=" + searchParam;
-          if (areaParam !== "") {
-            url += "&area=" + areaParam;
-          }
-          if (ageParam !== "") {
-            url += "&age=" + ageParam;
-          }
-          if (genderParam !== "") {
-            url += "&gender=" + genderParam;
-          }
-          if (yearParam !== "") {
-            url += "&year=" + yearParam;
-          }
-          if (monthParam !== "") {
-            url += "&month=" + monthParam;
-          }
-
-          fetch(url, {
-            method: "GET",
-            headers: {
-              Authorization:
-                "Bearer " +
-                props.token,
-              "Content-Type": "application/x-www-form-urlencoded"
-            }
-          })
-            .then(function (response) {
-              if (response.ok) {
-                return response.json();
-              }
-              throw new Error("Network response was not ok");
-            })
-            .then(result => {
-              setResults(result.result);
-              return result;
-            })
-            .catch(function (error) {
-              setResults([]);
-              setFailedSearch("Your search parameters are invalid");
-              console.log(
-                "There has been a problem with your fetch operation: "
-              );
-            });
+          searchRequest(props.token, setResults, setFailedSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam);
         }}
       >
         <label>Search Crime:</label>
@@ -110,7 +153,6 @@ function Search(props) {
           onChange={searchEvent => {
             const { value } = searchEvent.target;
             setSearchParam(value);
-
           }}
         />
         <br />
@@ -137,25 +179,40 @@ function Search(props) {
         setFailedSearch(null);
         setSearchParam("");
         setAreaParam("");
-        let element = document.getElementById("filterLGA");
-        element.value = "default";
+        clearSearch("filterLGA");
+        clearSearch("filterYear");
+        clearSearch("filterAge");
+        clearSearch("filterMonth");
+        clearSearch("filterGender");
       }
       }>Clear search</button>
 
       {failedSearch !== null ? <p>{failedSearch}</p> : null}
-      <DisplaySearch searchResult={searchResult} />
+      <DisplaySearch searchResult={searchResult} areas={areas} />
     </div >
   );
 }
 
+function clearSearch(filterID) {
+  let element = document.getElementById(filterID);
+  element.value = "";
+}
+
 function DisplaySearch(props) {
   const [LGA, setLGA] = useState("");
+  const [showChart, setShowChart] = useState(false);
+
+  const toggleChart = () => {
+    showChart === false ? setShowChart(true) : setShowChart(false)
+  }
 
   if (props.searchResult.length === 0) {
     return <p>Current search is empty</p>
   }
   return (
     <div>
+      <button onClick={toggleChart}> Toggle chart</button>
+      <Chart searchResult={props.searchResult} areas={props.areas} showChart={showChart} />
       <table>
         <thead>
           <tr>
@@ -217,6 +274,7 @@ function App() {
 
   return (
     < div className="App" >
+
       <RegisterForm token={token} />
       <LoginForm handleToken={handleToken} token={token} clearToken={clearToken} />
       <br></br>

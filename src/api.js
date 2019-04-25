@@ -18,6 +18,9 @@ function GetRequest(url) {
 export function UseRequest(url) {
     const [offences, setOffences] = useState([]);
     const [areas, setAreas] = useState([]);
+    const [ages, setAges] = useState([]);
+    const [years, setYears] = useState([]);
+    const [genders, setGenders] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -26,6 +29,9 @@ export function UseRequest(url) {
             .then(data => {
                 setOffences(data.offences);
                 setAreas(data.areas);
+                setYears(data.years);
+                setGenders(data.genders);
+                setAges(data.ages);
                 setLoading(false);
             })
             .catch(e => {
@@ -35,7 +41,7 @@ export function UseRequest(url) {
     }, []);
 
     return {
-        offences, areas, error: null, loading
+        offences, areas, years, genders, ages, error: null, loading
     }
 }
 

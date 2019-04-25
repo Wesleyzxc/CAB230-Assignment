@@ -17,12 +17,35 @@ function GridOffence(props) {
 
 }
 
+function SearchFilter(props) {
+  return (
+    <select id={props.id}
+      onChange={area => {
+        const { value } = area.target;
+        props.setParam(value);
+      }}>
+      <option value="" defaultValue>{props.filterBy}</option>
+      {props.filter.map(search => (
+        <option value={search} key={(search)}>{search}</option>
+      ))}
+    </select>
+  )
+}
 function Search(props) {
   const [searchResult, setResults] = useState([]);
   const [searchParam, setSearchParam] = useState("");
   const [areaParam, setAreaParam] = useState("");
+  const [ageParam, setAgeParam] = useState("");
+  const [genderParam, setGenderParam] = useState("");
+  const [yearParam, setYearParam] = useState("");
+  const [monthParam, setMonthParam] = useState("");
+
+  const { areas, areaError, areaLoading } = UseRequest("https://cab230.hackhouse.sh/areas");
+  const { ages, ageError, ageLoading } = UseRequest("https://cab230.hackhouse.sh/ages");
+  const { years, yearError, yearLoading } = UseRequest("https://cab230.hackhouse.sh/years");
+  const { genders, genderError, genderLoading } = UseRequest("https://cab230.hackhouse.sh/genders");
+
   const [failedSearch, setFailedSearch] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   if (props.token === "") {
     return (<p>Login to search</p>)
@@ -36,6 +59,19 @@ function Search(props) {
           if (areaParam !== "") {
             url += "&area=" + areaParam;
           }
+          if (ageParam !== "") {
+            url += "&age=" + ageParam;
+          }
+          if (genderParam !== "") {
+            url += "&gender=" + genderParam;
+          }
+          if (yearParam !== "") {
+            url += "&year=" + yearParam;
+          }
+          if (monthParam !== "") {
+            url += "&month=" + monthParam;
+          }
+
           fetch(url, {
             method: "GET",
             headers: {
@@ -79,16 +115,19 @@ function Search(props) {
         />
         <br />
         <label>By Area:</label>
-        <select type="submit" id="filterLGA"
-          onChange={area => {
-            const { value } = area.target;
-            setAreaParam(value);
-          }}>
-          <option value="" defaultValue>Filter by LGA</option>
-          {props.areas.map(search => (
-            <option value={search} key={(search)}>{search}</option>
-          ))}
-        </select>
+        <SearchFilter setParam={setAreaParam} filterBy="Filter by Area" filter={areas} id="filterLGA" />
+        <br />
+        <label>By Age:</label>
+        <SearchFilter setParam={setAgeParam} filterBy="Filter by Age" filter={ages} id="filterAge" />
+        <br />
+        <label>By Year:</label>
+        <SearchFilter setParam={setYearParam} filterBy="Filter by Year" filter={years} id="filterYear" />
+        <br />
+        <label>By Month:</label>
+        <SearchFilter setParam={setMonthParam} filterBy="Filter by Month" filter={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]} id="filterMonth" />
+        <br />
+        <label>By Gender:</label>
+        <SearchFilter setParam={setGenderParam} filterBy="Filter by Gender" filter={genders} id="filterGender" />
         <br />
         <button onClick={() => setFailedSearch(null)}>Search</button>
 
@@ -144,7 +183,7 @@ function AfterLoginPage(props) {
         <button id="offenceButton" onClick={props.toggleOffence}>Toggle offences</button>
         <GridOffence offenceList={props.offenceList} />
         <div className="lockLogin">
-          <Search token={props.token} areas={props.areas} />
+          <Search token={props.token} />
         </div>
       </div>
 
@@ -160,7 +199,7 @@ function App() {
   const [offenceList, setOffences] = useState([]);
   const [token, setToken] = useState("");
   const { offences, error, loading } = UseRequest("https://cab230.hackhouse.sh/offences");
-  const { areas, areaError, areaLoading } = UseRequest("https://cab230.hackhouse.sh/areas");
+
 
   if (loading) {
     return <h1>Loading...</h1>
@@ -177,12 +216,12 @@ function App() {
   const toggleOffence = () => { offenceList.length > 0 ? setOffences([]) : setOffences(offences) }
 
   return (
-    <div className="App">
+    < div className="App" >
       <RegisterForm token={token} />
       <LoginForm handleToken={handleToken} token={token} clearToken={clearToken} />
       <br></br>
 
-      <AfterLoginPage token={token} offenceList={offenceList} toggleOffence={toggleOffence} areas={areas} />
+      <AfterLoginPage token={token} offenceList={offenceList} toggleOffence={toggleOffence} />
     </div >
 
 

@@ -2,3 +2,19 @@
     padding-right: 5em;
     text-align: right;
   }
+
+  .loggedIn button{
+    background-color: #e7e7e7; color: black;
+    border: none;
+    padding: 15px 15px;
+    font-size: 16px;
+    display: inline-block;
+    text-decoration: none;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+  }
+
+  .loggedIn button:hover{
+    background-color: gray;
+    color: white;
+  }

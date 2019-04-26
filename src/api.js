@@ -228,3 +228,17 @@ export function LoginForm(props) {
         </div >
     );
 }
+
+export function GridOffence(props) {
+    if (props.offenceList.length <= 0) {
+        return null
+    }
+    return (
+        <div className="grid-container">
+            {props.offenceList.map(offence => (
+                <div className="grid-item" key={props.offenceList.indexOf(offence)}>{offence}</div>
+            ))}
+        </div>
+    );
+
+}

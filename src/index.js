@@ -1,27 +1,31 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
-import { RegisterForm, LoginForm, UseRequest, UseAreas } from "./api";
+import { RegisterForm, LoginForm, UseRequest, GridOffence } from "./api";
 import "./index.css";
 import { Bar } from 'react-chartjs-2';
 
-
+// searchParam={searchParam} setFailedSearch={props.setFailedSearch} monthParam={monthParam} token={props.token}
 
 function Chart(props) {
-  let crimeCount = []
+  const [monthlyData, setMonthlyData] = useState([]);
+  let crimeCount = [];
+  let areaCount = [];
   props.searchResult.map(each => {
     crimeCount.push(each.total)
+    areaCount.push(each.LGA)  // So that graph doesn't assign to first LGA if areaParam is specified
   })
 
+
+
   const data = {
-    labels: props.areas,
+    labels: areaCount,
     datasets: [
       {
         label: 'Offence count',
-        borderWidth: 1,
         data: crimeCount,
-        backgroundColor: 'rgba(255,99,132,0.2)',
-        borderColor: 'rgba(255,99,132,1)',
-        borderWidth: 1,
+        backgroundColor: 'rgba(255,99,132,1)',
+        borderColor: 'red',
+        borderWidth: 2,
         hoverBackgroundColor: 'rgba(255,99,132,0.4)',
         hoverBorderColor: 'rgba(255,99,132,1)',
       }
@@ -31,43 +35,15 @@ function Chart(props) {
   if (props.showChart === false) {
     return null
   }
-
   return (
     < div className="chart" >
+      {console.log(props.monthParam)}
       <Bar
         data={data}
       />
     </div >
   )
-}
 
-function GridOffence(props) {
-  if (props.offenceList.length <= 0) {
-    return null
-  }
-  return (
-    <div className="grid-container">
-      {props.offenceList.map(offence => (
-        <div className="grid-item" key={props.offenceList.indexOf(offence)}>{offence}</div>
-      ))}
-    </div>
-  );
-
-}
-
-function SearchFilter(props) {
-  return (
-    <select id={props.id}
-      onChange={area => {
-        const { value } = area.target;
-        props.setParam(value);
-      }}>
-      <option value="" defaultValue>{props.filterBy}</option>
-      {props.filter.map(search => (
-        <option value={search} key={(search)}>{search}</option>
-      ))}
-    </select>
-  )
 }
 
 function searchRequest(token, setResults, setFailedSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam) {
@@ -116,6 +92,23 @@ function searchRequest(token, setResults, setFailedSearch, searchParam, areaPara
 
 }
 
+function SearchFilter(props) {
+  return (
+    <div className="searchFilters">
+      <select id={props.id}
+        onChange={area => {
+          const { value } = area.target;
+          props.setParam(value);
+        }}>
+        <option value="" defaultValue>{props.filterBy}</option>
+        {props.filter.map(search => (
+          <option value={search} key={(search)}>{search}</option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
 function Search(props) {
   const [searchResult, setResults] = useState([]);
   const [searchParam, setSearchParam] = useState("");
@@ -135,6 +128,7 @@ function Search(props) {
   if (props.token === "") {
     return (<p>Login to search</p>)
   }
+
   return (
     <div>
       <form
@@ -155,23 +149,15 @@ function Search(props) {
             setSearchParam(value);
           }}
         />
-        <br />
-        <label>By Area:</label>
-        <SearchFilter setParam={setAreaParam} filterBy="Filter by Area" filter={areas} id="filterLGA" />
-        <br />
-        <label>By Age:</label>
-        <SearchFilter setParam={setAgeParam} filterBy="Filter by Age" filter={ages} id="filterAge" />
-        <br />
-        <label>By Year:</label>
-        <SearchFilter setParam={setYearParam} filterBy="Filter by Year" filter={years} id="filterYear" />
-        <br />
-        <label>By Month:</label>
-        <SearchFilter setParam={setMonthParam} filterBy="Filter by Month" filter={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]} id="filterMonth" />
-        <br />
-        <label>By Gender:</label>
-        <SearchFilter setParam={setGenderParam} filterBy="Filter by Gender" filter={genders} id="filterGender" />
-        <br />
         <button onClick={() => setFailedSearch(null)}>Search</button>
+        <br />
+
+        <SearchFilter setParam={setAreaParam} filterBy="Filter by Area" filter={areas} id="filterLGA" />
+        <SearchFilter setParam={setAgeParam} filterBy="Filter by Age" filter={ages} id="filterAge" />
+        <SearchFilter setParam={setYearParam} filterBy="Filter by Year" filter={years} id="filterYear" />
+        <SearchFilter setParam={setMonthParam} filterBy="Filter by Month" filter={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]} id="filterMonth" />
+        <SearchFilter setParam={setGenderParam} filterBy="Filter by Gender" filter={genders} id="filterGender" by="By Gender:" />
+
 
       </form>
       <button onClick={() => {
@@ -186,9 +172,8 @@ function Search(props) {
         clearSearch("filterGender");
       }
       }>Clear search</button>
-
-      {failedSearch !== null ? <p>{failedSearch}</p> : null}
       <DisplaySearch searchResult={searchResult} areas={areas} />
+      {failedSearch !== null ? <p>{failedSearch}</p> : null}
     </div >
   );
 }

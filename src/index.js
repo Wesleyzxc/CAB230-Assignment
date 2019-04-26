@@ -1,8 +1,8 @@
-import React, { useState, useEffect, Component } from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { RegisterForm, LoginForm, UseRequest, UseAreas } from "./api";
 import "./index.css";
-import { Bar, Line, Pie } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 
 
 
@@ -143,7 +143,7 @@ function Search(props) {
           searchRequest(props.token, setResults, setFailedSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam);
         }}
       >
-        <label>Search Crime:</label>
+        <label >Search Crime:</label>
         <input
           aria-labelledby="search-button"
           id="search"
@@ -213,7 +213,7 @@ function DisplaySearch(props) {
     <div>
       <button onClick={toggleChart}> Toggle chart</button>
       <Chart searchResult={props.searchResult} areas={props.areas} showChart={showChart} />
-      <table>
+      <table align="center">
         <thead>
           <tr>
             <th>LGA</th>
@@ -236,7 +236,7 @@ function DisplaySearch(props) {
 function AfterLoginPage(props) {
   if (props.token !== "") {
     return (
-      <div>
+      <div className="lockLogin">
         <button id="offenceButton" onClick={props.toggleOffence}>Toggle offences</button>
         <GridOffence offenceList={props.offenceList} />
         <div className="lockLogin">
@@ -248,7 +248,7 @@ function AfterLoginPage(props) {
   }
 
   return (
-    <div className="lockLogin">Login or register first</div>
+    <div className="lockLogin"></div>
   )
 }
 
@@ -277,7 +277,6 @@ function App() {
 
       <RegisterForm token={token} />
       <LoginForm handleToken={handleToken} token={token} clearToken={clearToken} />
-      <br></br>
 
       <AfterLoginPage token={token} offenceList={offenceList} toggleOffence={toggleOffence} />
     </div >

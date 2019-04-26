@@ -45,11 +45,10 @@ code {
   text-align: center;
 }
 
-.lockLogin{
+.App{
   text-align: center;
-  padding: 7em;
-  height: calc(100vh -14em);
+  padding: 1em;
   color: black;
-  background: lightgreen;
+  background: white;
   border-radius: 25px;
 }

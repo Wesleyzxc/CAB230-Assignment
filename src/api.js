@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
+import "./api.css";
 
 function GetRequest(url) {
     return fetch(url)
@@ -174,6 +175,8 @@ export function LoginForm(props) {
                     setPassword("");
                     setLoginState(null);
                 }}>Log out</button>}
+                <br />
+                <br />
             </div >
 
         )

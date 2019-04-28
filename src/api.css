@@ -1,12 +1,16 @@
 .loggedIn{
     padding-right: 5em;
     text-align: right;
+    background-color: #c1c1c1;
+    font-weight: 550;
   }
 
   .loggedIn button{
-    background-color: #e7e7e7; color: black;
+    background-color: #e7e7e7;
+    color: black;
     border: none;
-    padding: 15px 15px;
+    padding: 10px;
+    margin: 7px;
     font-size: 16px;
     display: inline-block;
     text-decoration: none;
@@ -18,3 +22,9 @@
     background-color: gray;
     color: white;
   }
+
+  h3 {
+    background-color: #f1f1f1;
+    padding: 20px 10px;
+  }
+  

@@ -100,7 +100,7 @@ export function RegisterForm(props) {
             >
                 <label htmlFor="regName">Your email:  </label>
 
-                <input
+                <input placeholder="Enter your email"
                     id="regName"
                     name="regName"
                     type="text"
@@ -113,7 +113,7 @@ export function RegisterForm(props) {
                 <br></br>
 
                 <label htmlFor="regPassword"> Your password:  </label>
-                <input id="regPassword" password="regPassword" type="password" value={password}
+                <input placeholder="Enter your password" id=" regPassword" password="regPassword" type="password" value={password}
                     onChange={passwordEvent => {
                         const { value } = passwordEvent.target;
                         setPassword(value);
@@ -176,7 +176,6 @@ export function LoginForm(props) {
                     setLoginState(null);
                 }}>Log out</button>}
                 <br />
-                <br />
             </div >
 
         )
@@ -194,11 +193,10 @@ export function LoginForm(props) {
                     else {
                         setLoginState("Your email and password fields can't be empty!")
                     }
-                }}
-            >
+                }}>
                 <label htmlFor="name">Your email:  </label>
 
-                <input
+                <input placeholder="Enter your email"
                     id="name"
                     name="name"
                     type="text"
@@ -211,7 +209,7 @@ export function LoginForm(props) {
                 <br></br>
 
                 <label htmlFor="password"> Your password:  </label>
-                <input id="password" password="password" type="password" value={password}
+                <input placeholder="Enter your password" id="password" password="password" type="password" value={password}
                     onChange={passwordEvent => {
                         const { value } = passwordEvent.target;
                         setPassword(value);
@@ -223,8 +221,6 @@ export function LoginForm(props) {
                 <button type="submit">Login</button>
 
             </form>
-
-
         </div >
     );
 }

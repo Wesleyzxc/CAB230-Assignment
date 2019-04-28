@@ -22,20 +22,19 @@ code {
 }
 
 #offenceButton {
-  background-color: #4CAF50; /* Green */
+  background-color: rgb(25, 72, 147); /* Green */
   border: none;
-  color: black;
-  min-width: 100%;
+  color: white;
   padding: 15px;
+  margin-bottom: 7px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 16px;
-  border-radius: 25px;
+  border-radius: 10px;
 }
 
 #offenceButton:hover {
-  color: white;
+  color: gray;
 }
 
 .grid-item {
@@ -43,6 +42,24 @@ code {
   padding: 5px;
   font-size: 14px;
   text-align: center;
+}
+
+button{
+  background-color: #e7e7e7;
+  color: black;
+  border: none;
+  padding: 10px;
+  margin: 7px;
+  font-size: 16px;
+  display: inline-block;
+  text-decoration: none;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+}
+
+button:hover{
+  background-color: gray;
+  color: white;
 }
 
 .App{
@@ -58,6 +75,7 @@ code {
 
 .searchFilters {
   float: right;
+  margin: 3px;
 }
 
 .searchFilters select {
@@ -95,4 +113,9 @@ code {
 }
 .searchFilters select option {
 	font-weight:normal;
+}
+
+.emptySearch {
+  color: red;
+  font-weight: 550;
 }

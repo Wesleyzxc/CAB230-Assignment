@@ -46,7 +46,7 @@ function Chart(props) {
 
 }
 
-function searchRequest(token, setResults, setFailedSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam) {
+function searchRequest(token, setResults, setFailedSearch, setFirstSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam) {
   let url = "https://cab230.hackhouse.sh/search?offence=" + searchParam;
   if (areaParam !== "") {
     url += "&area=" + areaParam;
@@ -80,6 +80,7 @@ function searchRequest(token, setResults, setFailedSearch, searchParam, areaPara
     })
     .then(result => {
       setResults(result.result);
+      setFirstSearch(false);
       return result;
     })
     .catch(function (error) {
@@ -117,6 +118,7 @@ function Search(props) {
   const [genderParam, setGenderParam] = useState("");
   const [yearParam, setYearParam] = useState("");
   const [monthParam, setMonthParam] = useState("");
+  const [firstSearch, setFirstSearch] = useState(true);
 
   const { areas, areaError, areaLoading } = UseRequest("https://cab230.hackhouse.sh/areas");
   const { ages, ageError, ageLoading } = UseRequest("https://cab230.hackhouse.sh/ages");
@@ -134,7 +136,7 @@ function Search(props) {
       <form
         onSubmit={event => {
           event.preventDefault();
-          searchRequest(props.token, setResults, setFailedSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam);
+          searchRequest(props.token, setResults, setFailedSearch, setFirstSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam);
         }}
       >
         <label >Search Crime:</label>
@@ -149,31 +151,34 @@ function Search(props) {
             setSearchParam(value);
           }}
         />
-        <button onClick={() => setFailedSearch(null)}>Search</button>
-        <br />
+        <button type="submit" onClick={() => setFailedSearch(null)}>Search</button>
 
-        <SearchFilter setParam={setAreaParam} filterBy="Filter by Area" filter={areas} id="filterLGA" />
-        <SearchFilter setParam={setAgeParam} filterBy="Filter by Age" filter={ages} id="filterAge" />
-        <SearchFilter setParam={setYearParam} filterBy="Filter by Year" filter={years} id="filterYear" />
-        <SearchFilter setParam={setMonthParam} filterBy="Filter by Month" filter={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]} id="filterMonth" />
-        <SearchFilter setParam={setGenderParam} filterBy="Filter by Gender" filter={genders} id="filterGender" by="By Gender:" />
-
-
+        <button type="button" onClick={() => {
+          setResults([]);
+          setFailedSearch(null);
+          setFirstSearch(true);
+          setSearchParam("");
+          setAreaParam("");
+          clearSearch("filterLGA");
+          clearSearch("filterYear");
+          clearSearch("filterAge");
+          clearSearch("filterMonth");
+          clearSearch("filterGender");
+        }
+        }>Clear search</button>
       </form>
-      <button onClick={() => {
-        setResults([]);
-        setFailedSearch(null);
-        setSearchParam("");
-        setAreaParam("");
-        clearSearch("filterLGA");
-        clearSearch("filterYear");
-        clearSearch("filterAge");
-        clearSearch("filterMonth");
-        clearSearch("filterGender");
-      }
-      }>Clear search</button>
-      <DisplaySearch searchResult={searchResult} areas={areas} />
-      {failedSearch !== null ? <p>{failedSearch}</p> : null}
+
+      <DisplaySearch searchResult={searchResult} areas={areas} firstSearch={firstSearch} />
+
+      <SearchFilter setParam={setAreaParam} filterBy="Filter by Area" filter={areas} id="filterLGA" />
+      <SearchFilter setParam={setAgeParam} filterBy="Filter by Age" filter={ages} id="filterAge" />
+      <SearchFilter setParam={setYearParam} filterBy="Filter by Year" filter={years} id="filterYear" />
+      <SearchFilter setParam={setMonthParam} filterBy="Filter by Month" filter={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]} id="filterMonth" />
+      <SearchFilter setParam={setGenderParam} filterBy="Filter by Gender" filter={genders} id="filterGender" by="By Gender:" />
+
+
+
+      {failedSearch !== null ? <p className="emptySearch">{failedSearch}</p> : null}
     </div >
   );
 }
@@ -191,9 +196,14 @@ function DisplaySearch(props) {
     showChart === false ? setShowChart(true) : setShowChart(false)
   }
 
-  if (props.searchResult.length === 0) {
-    return <p>Current search is empty</p>
+  if (props.searchResult.length === 0 && props.firstSearch === true) {
+    return <p className="emptySearch"></p>
   }
+
+  if (props.searchResult.length === 0 && props.firstSearch === false) {
+    return <p className="emptySearch">Current search is empty</p>
+  }
+
   return (
     <div>
       <button onClick={toggleChart}> Toggle chart</button>

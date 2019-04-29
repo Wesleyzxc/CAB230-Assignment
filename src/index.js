@@ -41,17 +41,8 @@ function Chart(props) {
   );
 }
 
-function searchRequest(
-  token,
-  setResults,
-  setFailedSearch,
-  searchParam,
-  areaParam,
-  ageParam,
-  genderParam,
-  yearParam,
-  monthParam
-) {
+
+function searchRequest(token, setResults, setFailedSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam) {
   let url = "https://cab230.hackhouse.sh/search?offence=" + searchParam;
   if (areaParam !== "") {
     url += "&area=" + areaParam;
@@ -124,7 +115,9 @@ function Search(props) {
   const [genderParam, setGenderParam] = useState("");
   const [yearParam, setYearParam] = useState("");
   const [monthParam, setMonthParam] = useState("");
+
   const [firstSearch, setFirstSearch] = useState(true);
+  const [failedSearch, setFailedSearch] = useState(null);
 
   const { areas, areaError, areaLoading } = UseRequest(
     "https://cab230.hackhouse.sh/areas"
@@ -139,7 +132,7 @@ function Search(props) {
     "https://cab230.hackhouse.sh/genders"
   );
 
-  const [failedSearch, setFailedSearch] = useState(null);
+
   return (
     <div className="Search">
       <form
@@ -160,7 +153,7 @@ function Search(props) {
             setSearchParam(value);
           }}
         />
-        <button type="submit" onClick={() => setFailedSearch(null)}>Search</button>
+        <button type="submit" onClick={() => { setFailedSearch(null); }}>Search</button>
 
 
         <button type="button"
@@ -192,10 +185,12 @@ function Search(props) {
         firstSearch={firstSearch}
       />
 
-      {failedSearch !== null ? (
-        <p className="emptySearch">{failedSearch}</p>
-      ) : null}
-    </div>
+      {
+        failedSearch !== null ? (
+          <p className="emptySearch">{failedSearch}</p>
+        ) : null
+      }
+    </div >
   );
 }
 

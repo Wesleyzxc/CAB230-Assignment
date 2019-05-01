@@ -125,20 +125,25 @@ button:hover{
 }
 
 .displaySearch {
-  text-align: center;
+  align: center;
 }
 
-
-.displaySearch button{
-  margin-top: 35px;
-  position: relative;  
-}
-
+.displaySearch tr{
+  align: center;
+} 
+.displaySearch thead{
+  align: center;
+} 
 .displaySearch table{
   align: center;
-  position: relative;
-  left: 35%;
 } 
+.displaySearch th{
+  align: center;
+} 
+.displaySearch tbody{
+  align: center;
+} 
+
 
 .loader {
   position: absolute;

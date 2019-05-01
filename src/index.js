@@ -41,8 +41,7 @@ function Chart(props) {
   );
 }
 
-
-function searchRequest(token, setResults, setFailedSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam) {
+function searchRequest(token, setsearchLoad, setResults, setFailedSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam) {
   let url = "https://cab230.hackhouse.sh/search?offence=" + searchParam;
   if (areaParam !== "") {
     url += "&area=" + areaParam;
@@ -73,11 +72,13 @@ function searchRequest(token, setResults, setFailedSearch, searchParam, areaPara
       throw new Error("Network response was not ok");
     })
     .then(result => {
+      setsearchLoad(false);
       setResults(result.result);
       return result;
     })
     .catch(function (error) {
       console.log(error.status);
+      setsearchLoad(false);
       setResults([]);
       setFailedSearch("Your search parameters are invalid");
       console.log("There has been a problem with your fetch operation: ");
@@ -119,6 +120,8 @@ function Search(props) {
   const [firstSearch, setFirstSearch] = useState(true);
   const [failedSearch, setFailedSearch] = useState(null);
 
+  const [searchLoad, setsearchLoad] = useState(false);
+
   const { areas, areaError, areaLoading } = UseRequest(
     "https://cab230.hackhouse.sh/areas"
   );
@@ -138,7 +141,9 @@ function Search(props) {
       <form
         onSubmit={event => {
           event.preventDefault();
-          searchRequest(props.token, setResults, setFailedSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam);
+          setsearchLoad(true);
+          searchRequest(props.token, setsearchLoad, setResults, setFailedSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam);
+          // setResults(search);
         }}
       >
         <label>Search Crime:</label>
@@ -160,6 +165,7 @@ function Search(props) {
           onClick={() => {
             setResults([]);
             setFailedSearch(null);
+            setsearchLoad(false);
             setSearchParam("");
             setAreaParam("");
             clearSearch("filterLGA");
@@ -172,12 +178,14 @@ function Search(props) {
           Clear search
       </button>
       </form>
+
       <SearchFilter setParam={setAreaParam} filterBy="Filter by Area" filter={areas} id="filterLGA" />
       <SearchFilter setParam={setAgeParam} filterBy="Filter by Age" filter={ages} id="filterAge" />
       <SearchFilter setParam={setYearParam} filterBy="Filter by Year" filter={years} id="filterYear" />
       <SearchFilter setParam={setMonthParam} filterBy="Filter by Month" filter={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]} id="filterMonth" />
       <SearchFilter setParam={setGenderParam} filterBy="Filter by Gender" filter={genders} id="filterGender" />
       <br></br>
+      {searchLoad ? <div class="loader"></div> : null}
 
       <DisplaySearch
         searchResult={searchResult}
@@ -269,7 +277,9 @@ function App() {
   );
 
   if (loading) {
-    return <h1>Loading...</h1>;
+    return  <div>
+      <div class="loader">Loading...</div>
+    </div>
   }
 
   const handleToken = event => {

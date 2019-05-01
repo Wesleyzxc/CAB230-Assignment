@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { RegisterForm, LoginForm, UseRequest, GridOffence } from "./api";
 import "./index.css";
@@ -185,7 +185,7 @@ function Search(props) {
       <SearchFilter setParam={setMonthParam} filterBy="Filter by Month" filter={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]} id="filterMonth" />
       <SearchFilter setParam={setGenderParam} filterBy="Filter by Gender" filter={genders} id="filterGender" />
       <br></br>
-      {searchLoad ? <div class="loader"></div> : null}
+      {searchLoad ? <div className="loader"></div> : null}
 
       <DisplaySearch
         searchResult={searchResult}
@@ -241,6 +241,7 @@ function DisplaySearch(props) {
         {props.searchResult.map(search => (
           <tbody key={props.searchResult.indexOf(search)}>
             <tr>
+              {console.log(search.lat)}
               <td>{search.LGA}</td>
               <td>{search.total}</td>
             </tr>
@@ -270,6 +271,7 @@ function AfterLoginPage(props) {
 }
 
 function App() {
+  document.title="Search crime";
   const [offenceList, setOffences] = useState([]);
   const [token, setToken] = useState("");
   const { offences, error, loading } = UseRequest(
@@ -278,7 +280,7 @@ function App() {
 
   if (loading) {
     return  <div>
-      <div class="loader">Loading...</div>
+      <div className="loader">Loading...</div>
     </div>
   }
 

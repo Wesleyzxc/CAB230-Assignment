@@ -189,6 +189,7 @@ function Search(props) {
       <br></br>
       <br></br>
       {searchLoad ? <div className="loader"></div> : null}
+
       <DisplaySearch
         searchResult={searchResult}
         areas={areas}
@@ -257,6 +258,7 @@ function DisplaySearch(props) {
         {props.searchResult.map(search => (
           <tbody key={props.searchResult.indexOf(search)}>
             <tr>
+              {console.log(search.lat)}
               <td>{search.LGA}</td>
               <td>{search.total}</td>
             </tr>

@@ -44,6 +44,7 @@ function searchRequest(
   token,
   setsearchLoad,
   setResults,
+  setFilterResults,
   setFailedSearch,
   searchParam,
   areaParam,
@@ -75,7 +76,7 @@ function searchRequest(
       "Content-Type": "application/x-www-form-urlencoded"
     }
   })
-    .then(function(response) {
+    .then(function (response) {
       if (response.ok) {
         return response.json();
       }
@@ -84,10 +85,10 @@ function searchRequest(
     .then(result => {
       setsearchLoad(false);
       setResults(result.result);
+      setFilterResults(result.result);
       return result;
     })
-    .catch(function(error) {
-      console.log(error.status);
+    .catch(function (error) {
       setsearchLoad(false);
       setResults([]);
       setFailedSearch("Your search parameters are invalid");
@@ -120,12 +121,14 @@ function SearchFilter(props) {
 
 function Search(props) {
   const [searchResult, setResults] = useState([]);
+  const [searchFiltered, setFilterResults] = useState([]);
   const [searchParam, setSearchParam] = useState("");
   const [areaParam, setAreaParam] = useState("");
   const [ageParam, setAgeParam] = useState("");
   const [genderParam, setGenderParam] = useState("");
   const [yearParam, setYearParam] = useState("");
   const [monthParam, setMonthParam] = useState("");
+
 
   const [firstSearch, setFirstSearch] = useState(true);
   const [failedSearch, setFailedSearch] = useState(null);
@@ -145,6 +148,7 @@ function Search(props) {
     "https://cab230.hackhouse.sh/genders"
   );
 
+
   return (
     <div className="Search">
       <form
@@ -155,6 +159,7 @@ function Search(props) {
             props.token,
             setsearchLoad,
             setResults,
+            setFilterResults,
             setFailedSearch,
             searchParam,
             areaParam,
@@ -247,11 +252,12 @@ function Search(props) {
         searchResult={searchResult}
         areas={areas}
         firstSearch={firstSearch}
+        searchFiltered={searchFiltered}
       />
 
-      {failedSearch !== null ? null : (
+      {failedSearch !== null ? (
         <p className="emptySearch">{failedSearch}</p>
-      )}
+      ) : null}
     </div>
   );
 }
@@ -267,35 +273,32 @@ function DisplaySearch(props) {
   const [sorted, setSorted] = useState(false);
   const [sort, setSort] = useState(false);
   const [showMap, setShowMap] = useState(false);
-
   const toggleChart = () => {
     showChart === false ? setShowChart(true) : setShowChart(false);
   };
-
-  const toggleMap = () => {
-    showMap === false ? setShowMap(true) : setShowMap(false);
-  };
-
-  if (props.searchResult.length === 0 && props.firstSearch === true) {
-    return <p className="emptySearch" />;
-  }
-
-  if (props.searchResult.length === 0 && props.firstSearch === false) {
-    return <p className="emptySearch">Current search is empty</p>;
-  }
 
   let latLong = [];
   props.searchResult.map(search =>
     latLong.push([search.lat, search.lng, search.total])
   );
+  const toggleMap = () => {
+    showMap === false ? setShowMap(true) : setShowMap(false);
+
+  };
+
+
+  if (props.searchResult.length === 0 && props.firstSearch === false) {
+    return <p className="emptySearch">Current search is empty</p>;
+  }
+
 
   function sortHeader(e) {
     if (sorted) {
-      props.searchResult.sort(function(a, b) {
+      props.searchResult.sort(function (a, b) {
         return a.total - b.total;
       });
     } else {
-      props.searchResult.sort(function(a, b) {
+      props.searchResult.sort(function (a, b) {
         return b.total - a.total;
       });
     }
@@ -305,14 +308,14 @@ function DisplaySearch(props) {
 
   function sortLGA(e) {
     if (sort) {
-      
-      props.searchResult.sort(function(a, b) {
+
+      props.searchResult.sort(function (a, b) {
         var textA = a.LGA.toUpperCase();
         var textB = b.LGA.toUpperCase();
         return textA < textB ? -1 : textA > textB ? 1 : 0;
       });
     } else if (sort === false) {
-      props.searchResult.sort(function(a, b) {
+      props.searchResult.sort(function (a, b) {
         var textA = a.LGA.toUpperCase();
         var textB = b.LGA.toUpperCase();
         return textA > textB ? -1 : textA < textB ? 1 : 0;
@@ -323,8 +326,8 @@ function DisplaySearch(props) {
   }
 
   const filterList = event => {
-    var updatedList = props.searchResult;
-    updatedList = updatedList.filter(function(item) {
+    let updatedList = props.searchFiltered;
+    updatedList = updatedList.filter(function (item) {
       return (
         item.LGA.toLowerCase().search(event.target.value.toLowerCase()) !== -1
       );
@@ -332,6 +335,10 @@ function DisplaySearch(props) {
 
     props.setResults(updatedList);
   };
+
+  // if (props.searchResult.length === 0 && props.firstSearch === true) {
+  //   return <p className="emptySearch" />;
+  // }
 
   return (
     <div className="displaySearch">
@@ -350,7 +357,8 @@ function DisplaySearch(props) {
         areas={props.areas}
         showChart={showChart}
       />
-      <Maps addressPoints={latLong} showMap={showMap} />
+
+      {props.searchResult.length < 1 ? null : <Maps addressPoints={latLong} showMap={showMap} />}
 
       <table id="resultTable">
         <thead>
@@ -373,12 +381,12 @@ function DisplaySearch(props) {
 }
 
 function Maps(props) {
-  let mapHidden = false;
   let layerHidden = false;
   let radius = 8;
   let blur = 8;
   let max = 1;
   let minOpacity = 0.05;
+  if (props.addressPoints.length === 1) { minOpacity = 2; max = 3; radius = 30 };
   const gradient = {
     0.1: "#89BDE0",
     0.2: "#96E3E6",
@@ -391,6 +399,11 @@ function Maps(props) {
   if (props.showMap === false) {
     return null;
   }
+
+  let dataPoints = [];
+  // creates 2D array if searched by LGA so that function can get lat, long, intensity
+  if (props.addressPoints.length === 1) { dataPoints.push(props.addressPoints); console.log(dataPoints) }
+  else { dataPoints = props.addressPoints }
   return (
     <div align="center">
       <Map center={[-10, 0]} zoom={3}>
@@ -398,7 +411,8 @@ function Maps(props) {
           <HeatmapLayer
             fitBoundsOnLoad
             fitBoundsOnUpdate
-            points={props.addressPoints}
+            points={dataPoints}
+
             longitudeExtractor={m => m[1]}
             latitudeExtractor={m => m[0]}
             gradient={gradient}
@@ -438,6 +452,7 @@ function AfterLoginPage(props) {
 
 function App() {
   document.title = "Search crime";
+  const [login, setLogin] = useState(true);
   const [offenceList, setOffences] = useState([]);
   const [token, setToken] = useState("");
   const { offences, error, loading } = UseRequest(
@@ -446,32 +461,29 @@ function App() {
 
   if (loading) {
     return (
-      <div>
-        <div className="loader" />
-      </div>
+      <div className="loader" />
     );
   }
-
   const handleToken = event => {
     setToken(event);
   };
-
   const clearToken = () => {
     setToken("");
   };
-
   const toggleOffence = () => {
     offenceList.length > 0 ? setOffences([]) : setOffences(offences);
   };
 
   return (
     <div className="App">
-      <RegisterForm token={token} />
-      <LoginForm
+      {login ? <LoginForm
+        setLogin={setLogin}
         handleToken={handleToken}
         token={token}
         clearToken={clearToken}
-      />
+      /> : <RegisterForm setLogin={setLogin} token={token} />}
+
+
 
       <AfterLoginPage
         token={token}

@@ -84,7 +84,8 @@ export function RegisterForm(props) {
     }
     return (
         <div className="RegisterForm">
-            <h3>Register</h3>
+            <h3>Register <button onClick={() => { props.setLogin(true) }}>Registered? Click to log in</button></h3>
+
             <form
                 onSubmit={(event) => {
                     event.preventDefault();
@@ -183,7 +184,8 @@ export function LoginForm(props) {
     return (
 
         <div className="LoginForm">
-            <h3>Login</h3>
+            <h3>Login <button align="right" onClick={() => { props.setLogin(false) }}>No account? Click to register</button></h3>
+
             <form
                 onSubmit={(event) => {
                     event.preventDefault();

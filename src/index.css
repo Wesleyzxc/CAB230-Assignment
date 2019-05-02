@@ -164,3 +164,23 @@ button:hover{
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+table {
+  margin-left: auto;
+  margin-right: auto;
+  border-spacing: 0;
+  border: 1px solid #ddd;
+}
+
+.displaySearch th {
+  cursor: pointer;
+}
+
+th, td {
+  text-align: left;
+  padding: 16px;
+}
+
+tr:nth-child(even) {
+  background-color: grey;
+}

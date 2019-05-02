@@ -3,8 +3,6 @@ import ReactDOM from "react-dom";
 import { RegisterForm, LoginForm, UseRequest, GridOffence } from "./api";
 import "./index.css";
 import { Bar } from "react-chartjs-2";
-import { Map, TileLayer } from 'react-leaflet';
-import HeatmapLayer from '../src/HeatmapLayer';
 
 // searchParam={searchParam} setFailedSearch={props.setFailedSearch} monthParam={monthParam} token={props.token}
 
@@ -37,6 +35,7 @@ function Chart(props) {
   }
   return (
     <div className="chart">
+      {console.log(props.monthParam)}
       <Bar data={data} />
     </div>
   );
@@ -186,11 +185,10 @@ function Search(props) {
       <SearchFilter setParam={setMonthParam} filterBy="Filter by Month" filter={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]} id="filterMonth" />
       <SearchFilter setParam={setGenderParam} filterBy="Filter by Gender" filter={genders} id="filterGender" />
       <br></br>
-      <br></br>
-      <br></br>
       {searchLoad ? <div className="loader"></div> : null}
 
       <DisplaySearch
+        setResults={setResults}
         searchResult={searchResult}
         areas={areas}
         firstSearch={firstSearch}
@@ -213,14 +211,11 @@ function clearSearch(filterID) {
 function DisplaySearch(props) {
   const [LGA, setLGA] = useState("");
   const [showChart, setShowChart] = useState(false);
-  const [showMap, setShowMap] = useState(false);
+  const [sorted, setSorted] = useState(false);
+  const [sort, setSort] = useState(false);
 
   const toggleChart = () => {
     showChart === false ? setShowChart(true) : setShowChart(false);
-  };
-
-  const toggleMap = () => {
-    showMap === false ? setShowMap(true) : setShowMap(false);
   };
 
   if (props.searchResult.length === 0 && props.firstSearch === true) {
@@ -230,35 +225,68 @@ function DisplaySearch(props) {
   if (props.searchResult.length === 0 && props.firstSearch === false) {
     return <p className="emptySearch">Current search is empty</p>;
   }
+  
 
-  const latLong = [];
-  props.searchResult.map(search => (
-    latLong.push([search.lat, search.lng, search.total])
-  ))
+
+  function sortHeader(e){
+    if (sorted===true){
+    setSorted(!sorted);
+    props.searchResult.sort(function(a,b){
+        return a.total - b.total;
+        
+    })}
+
+    else if (sorted===false){
+      setSorted(!sorted);
+      props.searchResult.sort(function(a,b){
+        return b.total - a.total;
+    })}
+    props.setResults(props.searchResult);
+ }
+
+ function sortLGA(e){  
+   
+  if (sort===true){
+  setSort(!sort);
+  props.searchResult.sort(function(a,b){
+    var textA = a.LGA.toUpperCase();
+    var textB = b.LGA.toUpperCase();
+    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+      
+  })}
+
+  else if (sort===false){
+    setSort(!sort);
+    props.searchResult.sort(function(a,b){
+      var textA = a.LGA.toUpperCase();
+    var textB = b.LGA.toUpperCase();
+    return (textA > textB) ? -1 : (textA < textB) ? 1 : 0;
+  })}
+  
+
+  props.setResults(props.searchResult);
+}
+  
 
   return (
     <div className="displaySearch">
-      <div>
-        <button onClick={toggleChart}> Toggle chart</button>
-        <button onClick={toggleMap}> Toggle map</button>
-      </div>
+      <button onClick={toggleChart}> Toggle chart</button>
       <Chart
         searchResult={props.searchResult}
         areas={props.areas}
         showChart={showChart}
       />
-      <Maps addressPoints={latLong} showMap={showMap} />
-      <table>
+
+      <table id="resultTable">
         <thead>
           <tr>
-            <th>LGA</th>
-            <th>Total</th>
+            <th onClick={sortLGA}>LGA</th>
+            <th onClick={sortHeader}>Total</th>
           </tr>
         </thead>
         {props.searchResult.map(search => (
           <tbody key={props.searchResult.indexOf(search)}>
             <tr>
-              {console.log(search.lat)}
               <td>{search.LGA}</td>
               <td>{search.total}</td>
             </tr>
@@ -267,48 +295,6 @@ function DisplaySearch(props) {
       </table>
     </div>
   );
-}
-
-function Maps(props) {
-  let mapHidden = false;
-  let layerHidden = false;
-  let radius = 8;
-  let blur = 8;
-  let max = 1;
-  let minOpacity = 0.05
-  const gradient = {
-    0.1: '#89BDE0', 0.2: '#96E3E6', 0.4: '#82CEB6',
-    0.6: '#FAF3A5', 0.8: '#F5D98B', '1.0': '#DE9A96'
-  };
-
-  if (props.showMap === false) {
-    return null
-  }
-  return (
-    <div align="center">
-      <Map center={[-10, 0]} zoom={3}>
-        {!layerHidden &&
-          <HeatmapLayer
-            fitBoundsOnLoad
-            fitBoundsOnUpdate
-            points={props.addressPoints}
-            longitudeExtractor={m => m[1]}
-            latitudeExtractor={m => m[0]}
-            gradient={gradient}
-            intensityExtractor={m => parseFloat(m[2])}
-            radius={Number(radius)}
-            blur={Number(blur)}
-            max={Number.parseFloat(max)}
-            minOpacity={minOpacity}
-          />
-        }
-        <TileLayer
-          url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-        />
-      </Map>
-    </div>
-  )
 }
 
 function AfterLoginPage(props) {
@@ -330,7 +316,7 @@ function AfterLoginPage(props) {
 }
 
 function App() {
-  document.title = "Search crime";
+  document.title="Search crime";
   const [offenceList, setOffences] = useState([]);
   const [token, setToken] = useState("");
   const { offences, error, loading } = UseRequest(
@@ -338,7 +324,7 @@ function App() {
   );
 
   if (loading) {
-    return <div>
+    return  <div>
       <div className="loader">Loading...</div>
     </div>
   }
@@ -354,16 +340,15 @@ function App() {
   const toggleOffence = () => {
     offenceList.length > 0 ? setOffences([]) : setOffences(offences);
   };
+
   return (
     <div className="App">
-
       <RegisterForm token={token} />
       <LoginForm
         handleToken={handleToken}
         token={token}
         clearToken={clearToken}
       />
-
 
       <AfterLoginPage
         token={token}
@@ -373,6 +358,8 @@ function App() {
     </div>
   );
 }
+
+
 
 const rootElement = document.getElementById("root");
 ReactDOM.render(<App />, rootElement);

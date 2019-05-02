@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { RegisterForm, LoginForm, UseRequest, GridOffence } from "./api";
 import "./index.css";
 import { Bar } from "react-chartjs-2";
-import { Map, TileLayer } from 'react-leaflet';
-import HeatmapLayer from '../src/HeatmapLayer';
-
+import { Map, TileLayer } from "react-leaflet";
+import HeatmapLayer from "../src/HeatmapLayer";
 
 function Chart(props) {
   const [monthlyData, setMonthlyData] = useState([]);
@@ -41,7 +40,18 @@ function Chart(props) {
   );
 }
 
-function searchRequest(token, setsearchLoad, setResults, setFailedSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam) {
+function searchRequest(
+  token,
+  setsearchLoad,
+  setResults,
+  setFailedSearch,
+  searchParam,
+  areaParam,
+  ageParam,
+  genderParam,
+  yearParam,
+  monthParam
+) {
   let url = "https://cab230.hackhouse.sh/search?offence=" + searchParam;
   if (areaParam !== "") {
     url += "&area=" + areaParam;
@@ -65,7 +75,7 @@ function searchRequest(token, setsearchLoad, setResults, setFailedSearch, search
       "Content-Type": "application/x-www-form-urlencoded"
     }
   })
-    .then(function (response) {
+    .then(function(response) {
       if (response.ok) {
         return response.json();
       }
@@ -76,7 +86,7 @@ function searchRequest(token, setsearchLoad, setResults, setFailedSearch, search
       setResults(result.result);
       return result;
     })
-    .catch(function (error) {
+    .catch(function(error) {
       console.log(error.status);
       setsearchLoad(false);
       setResults([]);
@@ -135,14 +145,24 @@ function Search(props) {
     "https://cab230.hackhouse.sh/genders"
   );
 
-
   return (
     <div className="Search">
       <form
         onSubmit={event => {
           event.preventDefault();
           setsearchLoad(true);
-          searchRequest(props.token, setsearchLoad, setResults, setFailedSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam);
+          searchRequest(
+            props.token,
+            setsearchLoad,
+            setResults,
+            setFailedSearch,
+            searchParam,
+            areaParam,
+            ageParam,
+            genderParam,
+            yearParam,
+            monthParam
+          );
           // setResults(search);
         }}
       >
@@ -158,10 +178,17 @@ function Search(props) {
             setSearchParam(value);
           }}
         />
-        <button type="submit" onClick={() => { setFailedSearch(null); }}>Search</button>
+        <button
+          type="submit"
+          onClick={() => {
+            setFailedSearch(null);
+          }}
+        >
+          Search
+        </button>
 
-
-        <button type="button"
+        <button
+          type="button"
           onClick={() => {
             setResults([]);
             setFailedSearch(null);
@@ -176,19 +203,44 @@ function Search(props) {
           }}
         >
           Clear search
-      </button>
+        </button>
       </form>
 
-      <SearchFilter setParam={setAreaParam} filterBy="Filter by Area" filter={areas} id="filterLGA" />
-      <SearchFilter setParam={setAgeParam} filterBy="Filter by Age" filter={ages} id="filterAge" />
-      <SearchFilter setParam={setYearParam} filterBy="Filter by Year" filter={years} id="filterYear" />
-      <SearchFilter setParam={setMonthParam} filterBy="Filter by Month" filter={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]} id="filterMonth" />
-      <SearchFilter setParam={setGenderParam} filterBy="Filter by Gender" filter={genders} id="filterGender" />
-      <br></br>
-      <br></br>
-      <br></br>
+      <SearchFilter
+        setParam={setAreaParam}
+        filterBy="Filter by Area"
+        filter={areas}
+        id="filterLGA"
+      />
+      <SearchFilter
+        setParam={setAgeParam}
+        filterBy="Filter by Age"
+        filter={ages}
+        id="filterAge"
+      />
+      <SearchFilter
+        setParam={setYearParam}
+        filterBy="Filter by Year"
+        filter={years}
+        id="filterYear"
+      />
+      <SearchFilter
+        setParam={setMonthParam}
+        filterBy="Filter by Month"
+        filter={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}
+        id="filterMonth"
+      />
+      <SearchFilter
+        setParam={setGenderParam}
+        filterBy="Filter by Gender"
+        filter={genders}
+        id="filterGender"
+      />
+      <br />
+      <br />
+      <br />
 
-      {searchLoad ? <div className="loader"></div> : null}
+      {searchLoad ? <div className="loader" /> : null}
 
       <DisplaySearch
         setResults={setResults}
@@ -197,12 +249,10 @@ function Search(props) {
         firstSearch={firstSearch}
       />
 
-      {
-        failedSearch !== null ? (
-          <p className="emptySearch">{failedSearch}</p>
-        ) : null
-      }
-    </div >
+      {failedSearch !== null ? null : (
+        <p className="emptySearch">{failedSearch}</p>
+      )}
+    </div>
   );
 }
 
@@ -233,64 +283,74 @@ function DisplaySearch(props) {
   if (props.searchResult.length === 0 && props.firstSearch === false) {
     return <p className="emptySearch">Current search is empty</p>;
   }
-  
-  const latLong = [];
-  props.searchResult.map(search => (
+
+  let latLong = [];
+  props.searchResult.map(search =>
     latLong.push([search.lat, search.lng, search.total])
-  ))
+  );
 
-  function sortHeader(e){
-    if (sorted===true){
-    setSorted(!sorted);
-    props.searchResult.sort(function(a,b){
+  function sortHeader(e) {
+    if (sorted) {
+      props.searchResult.sort(function(a, b) {
         return a.total - b.total;
-        
-    })}
-
-    else if (sorted===false){
-      setSorted(!sorted);
-      props.searchResult.sort(function(a,b){
+      });
+    } else {
+      props.searchResult.sort(function(a, b) {
         return b.total - a.total;
-    })}
+      });
+    }
+    setSorted(oldSorted => !oldSorted);
     props.setResults(props.searchResult);
- }
+  }
 
- function sortLGA(e){  
-
-  if (sort===true){
-  setSort(!sort);
-  props.searchResult.sort(function(a,b){
-    var textA = a.LGA.toUpperCase();
-    var textB = b.LGA.toUpperCase();
-    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+  function sortLGA(e) {
+    if (sort) {
       
-  })}
+      props.searchResult.sort(function(a, b) {
+        var textA = a.LGA.toUpperCase();
+        var textB = b.LGA.toUpperCase();
+        return textA < textB ? -1 : textA > textB ? 1 : 0;
+      });
+    } else if (sort === false) {
+      props.searchResult.sort(function(a, b) {
+        var textA = a.LGA.toUpperCase();
+        var textB = b.LGA.toUpperCase();
+        return textA > textB ? -1 : textA < textB ? 1 : 0;
+      });
+    }
+    setSort(oldSorted => !oldSorted);
+    props.setResults(props.searchResult);
+  }
 
-  else if (sort===false){
-    setSort(!sort);
-    props.searchResult.sort(function(a,b){
-      var textA = a.LGA.toUpperCase();
-    var textB = b.LGA.toUpperCase();
-    return (textA > textB) ? -1 : (textA < textB) ? 1 : 0;
-  })}
-  
+  const filterList = event => {
+    var updatedList = props.searchResult;
+    updatedList = updatedList.filter(function(item) {
+      return (
+        item.LGA.toLowerCase().search(event.target.value.toLowerCase()) !== -1
+      );
+    });
 
-  props.setResults(props.searchResult);
-}
-  
+    props.setResults(updatedList);
+  };
 
   return (
     <div className="displaySearch">
-    <div>
+      <div>
         <button onClick={toggleChart}> Toggle chart</button>
         <button onClick={toggleMap}> Toggle map</button>
       </div>
+      <input
+        type="text"
+        className="form-control form-control-lg"
+        placeholder="Search"
+        onChange={filterList}
+      />
       <Chart
         searchResult={props.searchResult}
         areas={props.areas}
         showChart={showChart}
       />
-            <Maps addressPoints={latLong} showMap={showMap} />
+      <Maps addressPoints={latLong} showMap={showMap} />
 
       <table id="resultTable">
         <thead>
@@ -318,19 +378,23 @@ function Maps(props) {
   let radius = 8;
   let blur = 8;
   let max = 1;
-  let minOpacity = 0.05
+  let minOpacity = 0.05;
   const gradient = {
-    0.1: '#89BDE0', 0.2: '#96E3E6', 0.4: '#82CEB6',
-    0.6: '#FAF3A5', 0.8: '#F5D98B', '1.0': '#DE9A96'
+    0.1: "#89BDE0",
+    0.2: "#96E3E6",
+    0.4: "#82CEB6",
+    0.6: "#FAF3A5",
+    0.8: "#F5D98B",
+    "1.0": "#DE9A96"
   };
 
   if (props.showMap === false) {
-    return null
+    return null;
   }
   return (
     <div align="center">
       <Map center={[-10, 0]} zoom={3}>
-        {!layerHidden &&
+        {!layerHidden && (
           <HeatmapLayer
             fitBoundsOnLoad
             fitBoundsOnUpdate
@@ -344,14 +408,14 @@ function Maps(props) {
             max={Number.parseFloat(max)}
             minOpacity={minOpacity}
           />
-        }
+        )}
         <TileLayer
           url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         />
       </Map>
     </div>
-  )
+  );
 }
 
 function AfterLoginPage(props) {
@@ -373,7 +437,7 @@ function AfterLoginPage(props) {
 }
 
 function App() {
-  document.title="Search crime";
+  document.title = "Search crime";
   const [offenceList, setOffences] = useState([]);
   const [token, setToken] = useState("");
   const { offences, error, loading } = UseRequest(
@@ -381,9 +445,11 @@ function App() {
   );
 
   if (loading) {
-    return  <div>
-      <div className="loader">Loading...</div>
-    </div>
+    return (
+      <div>
+        <div className="loader" />
+      </div>
+    );
   }
 
   const handleToken = event => {
@@ -415,8 +481,6 @@ function App() {
     </div>
   );
 }
-
-
 
 const rootElement = document.getElementById("root");
 ReactDOM.render(<App />, rootElement);

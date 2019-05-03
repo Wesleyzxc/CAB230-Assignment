@@ -333,7 +333,9 @@ export default withLeaflet(class HeatmapLayer extends MapLayer {
         );
 
         const accumulateInGrid = (points, leafletMap, bounds) => reduce(points, (grid, point) => {
-            const latLng = [getLat(point), getLng(point)];
+            let latLng;
+            if (points.length > 1) { latLng = [getLat(point), getLng(point)]; }
+            if (points.length === 1) { latLng = [points[0], points[1]]; }
             if (isInvalidLatLngArray(latLng)) { //skip invalid points
                 return grid;
             }

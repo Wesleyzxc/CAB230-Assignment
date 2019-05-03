@@ -100,8 +100,7 @@ function searchRequest(
       if (error.toString() === "Error: Server sent 500") {
         setFailedSearch("Please enter a valid offence!");
       }
-      console.log(typeof error.toString())
-      console.log(error);
+      // console.log(error);
     });
 }
 
@@ -144,16 +143,16 @@ function Search(props) {
 
   const [searchLoad, setsearchLoad] = useState(false);
 
-  const { areas, areaError, areaLoading } = UseRequest(
+  const { areas } = UseRequest(
     "https://cab230.hackhouse.sh/areas"
   );
-  const { ages, ageError, ageLoading } = UseRequest(
+  const { ages } = UseRequest(
     "https://cab230.hackhouse.sh/ages"
   );
-  const { years, yearError, yearLoading } = UseRequest(
+  const { years } = UseRequest(
     "https://cab230.hackhouse.sh/years"
   );
-  const { genders, genderError, genderLoading } = UseRequest(
+  const { genders } = UseRequest(
     "https://cab230.hackhouse.sh/genders"
   );
 
@@ -297,7 +296,7 @@ function DisplaySearch(props) {
 
 
   if (props.searchResult.length === 0 && props.firstSearch === false) {
-    return <p className="emptySearch">Current search is empty</p>;
+    return <p className="errorMessage">Current search is empty</p>;
   }
 
 
@@ -367,7 +366,8 @@ function DisplaySearch(props) {
         showChart={showChart}
       />
 
-      {props.searchResult.length < 1 ? null : <Maps addressPoints={latLong} showMap={showMap} />}
+      <Maps addressPoints={latLong} showMap={showMap} />
+      {/* {props.searchResult.length < 1 ? null : <Maps addressPoints={latLong} showMap={showMap} />} */}
 
       <table id="resultTable">
         <thead>
@@ -395,7 +395,6 @@ function Maps(props) {
   let blur = 8;
   let max = 1;
   let minOpacity = 0.05;
-  if (props.addressPoints.length === 1) { minOpacity = 2; max = 3; radius = 30 };
   const gradient = {
     0.1: "#89BDE0",
     0.2: "#96E3E6",
@@ -409,23 +408,33 @@ function Maps(props) {
     return null;
   }
 
-  let dataPoints = [];
-  // creates 2D array if searched by LGA so that function can get lat, long, intensity
-  if (props.addressPoints.length === 1) { dataPoints.push(props.addressPoints); console.log(dataPoints) }
-  else { dataPoints = props.addressPoints }
   return (
     <div align="center">
       <Map center={[-10, 0]} zoom={3}>
-        {!layerHidden && (
+        {props.addressPoints.length > 1 && (
           <HeatmapLayer
             fitBoundsOnLoad
             fitBoundsOnUpdate
-            points={dataPoints}
-
+            points={props.addressPoints}
             longitudeExtractor={m => m[1]}
             latitudeExtractor={m => m[0]}
             gradient={gradient}
             intensityExtractor={m => parseFloat(m[2])}
+            radius={Number(radius)}
+            blur={Number(blur)}
+            max={Number.parseFloat(max)}
+            minOpacity={minOpacity}
+          />
+        )}
+        {props.addressPoints.length === 1 && (
+          <HeatmapLayer
+            fitBoundsOnLoad
+            fitBoundsOnUpdate
+            points={props.addressPoints}
+            longitudeExtractor={m => props.addressPoints[0]}
+            latitudeExtractor={m => props.addressPoints[1]}
+            gradient={gradient}
+            intensityExtractor={m => parseFloat(props.addressPoints[2])}
             radius={Number(radius)}
             blur={Number(blur)}
             max={Number.parseFloat(max)}

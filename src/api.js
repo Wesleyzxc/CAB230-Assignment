@@ -151,13 +151,9 @@ function getToken(nameStr, passStr, props, handleLoginState) {
             throw new Error(response.status);
         })
         .then(function (result) {
-            // if (result.access_token) {
-            console.log(result.status)
+            // console.log(result.status)
             props.handleToken(result.access_token);
             handleLoginState("You have logged in successfully!")
-            // }
-            // else { props.handleToken(""); handleLoginState("Test") }
-            // console.log(result); returns token etc
         })
         .catch(function (error) {
             console.log(error); //returns error

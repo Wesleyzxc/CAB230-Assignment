@@ -115,7 +115,7 @@ button:hover{
 	font-weight:normal;
 }
 
-.emptySearch {
+.errorMessage {
   color: red;
   font-weight: 550;
 }
@@ -135,12 +135,16 @@ button:hover{
 table {
   margin-left: auto;
   margin-right: auto;
+  margin-top: 10px;
   border-spacing: 0;
   border: 1px solid #ddd;
 }
 
 .displaySearch th {
   cursor: pointer;
+  background: lightgray;
+  border: 1px solid;
+  margin-top: 10px;
 }
 
 th, td {

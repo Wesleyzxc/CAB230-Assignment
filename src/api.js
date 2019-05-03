@@ -8,7 +8,6 @@ function GetRequest(url) {
             if (response.ok) {
                 return response.json();
             }
-            throw new Error("Network response was not ok");
 
         })
         .catch(function (error) {
@@ -46,7 +45,7 @@ export function UseRequest(url) {
     }
 }
 
-function fetchRegister(name, password, setRegister) {
+function fetchRegister(name, password, setRegister, setEmail, setPassword, setLogin) {
 
     fetch("https://cab230.hackhouse.sh/register", {
         method: "POST",
@@ -59,15 +58,21 @@ function fetchRegister(name, password, setRegister) {
             if (response.ok) {
                 return response.json();
             }
-            throw new Error("Network response was not ok");
+            throw new Error(response.status);
         })
         .then(function (result) {
-            //console.log(result); // register message 
-            setRegister("You've successfully register! Login to search what you need");
+            // console.log(result); // register message 
+            if (result) {
+                setEmail(name);
+                setPassword(password);
+                setLogin(true);
+                setRegister("You've successfully registered! Log in to search what you need");
+            }
+            else { setRegister("This email has been registered before, try logging in!") }
 
         })
         .catch(function (error) {
-            console.log("There has been a problem with registering. Are you already registered? ", error.message);
+            console.log("There has been a problem with registering. Are you already registered? ", error);
             setRegister("There has been a problem with registering. Are you already registered?");
         });
 }
@@ -90,9 +95,8 @@ export function RegisterForm(props) {
                 onSubmit={(event) => {
                     event.preventDefault();
                     if (name !== "" && password !== "") {
-
-                        console.log(name, password);
-                        fetchRegister(name, password, setRegister);
+                        // console.log(name, password);
+                        fetchRegister(name, password, setRegister, props.setEmail, props.setPassword, props.setLogin);
                     }
                     else {
                         setRegisterState("Your email and password field can't be empty!")
@@ -120,7 +124,7 @@ export function RegisterForm(props) {
                         setPassword(value);
                     }} />
 
-                {registerState != null ? <p>{registerState}</p> : null}
+                {registerState != null ? <p className="errorMessage">{registerState}</p> : null}
 
                 <br></br>
                 <button type="submit">Register</button>
@@ -144,16 +148,20 @@ function getToken(nameStr, passStr, props, handleLoginState) {
             if (response.ok) {
                 return response.json();
             }
-            throw new Error("Network response was not ok");
+            throw new Error(response.status);
         })
         .then(function (result) {
-            props.handleToken(result.token)
+            // if (result.access_token) {
+            console.log(result.status)
+            props.handleToken(result.access_token);
             handleLoginState("You have logged in successfully!")
-            // return console.log(result.token); // token
+            // }
+            // else { props.handleToken(""); handleLoginState("Test") }
+            // console.log(result); returns token etc
         })
         .catch(function (error) {
-            console.log("There has been a problem with your fetch operation: ", error.message);
-            props.handleToken("")
+            console.log(error); //returns error
+            props.clearToken();
             handleLoginState("Your email and password does not match.")
         });
 }
@@ -170,7 +178,7 @@ export function LoginForm(props) {
         return (
             <div className="loggedIn" >
                 Welcome, {name}!
-                {props.token === "" ? <p></p> : <button onClick={() => {
+                {props.token === "" ? null : <button onClick={() => {
                     props.clearToken();
                     setName("");
                     setPassword("");
@@ -206,6 +214,8 @@ export function LoginForm(props) {
                     onChange={nameEvent => {
                         const { value } = nameEvent.target;
                         setName(value);
+                        if (props.repopulateEmail) { setName(props.repopulateEmail) };
+
                     }}
                 />
                 <br></br>
@@ -215,9 +225,10 @@ export function LoginForm(props) {
                     onChange={passwordEvent => {
                         const { value } = passwordEvent.target;
                         setPassword(value);
+                        if (props.repopulatePassword) { setPassword(props.repopulatePassword) }
                     }} />
 
-                {loginState != null ? <p>{loginState}</p> : null}
+                {loginState != null ? <p className="errorMessage">{loginState}</p> : null}
 
                 <br></br>
                 <button type="submit">Login</button>

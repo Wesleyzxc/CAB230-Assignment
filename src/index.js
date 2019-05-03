@@ -80,7 +80,7 @@ function searchRequest(
       if (response.ok) {
         return response.json();
       }
-      throw new Error("Network response was not ok");
+      throw new Error(`Server sent ${response.status}`);
     })
     .then(result => {
       setsearchLoad(false);
@@ -91,8 +91,17 @@ function searchRequest(
     .catch(function (error) {
       setsearchLoad(false);
       setResults([]);
-      setFailedSearch("Your search parameters are invalid");
-      console.log("There has been a problem with your fetch operation: ");
+      if (error.toString() === "Error: Server sent 400") {
+        setFailedSearch("You can't search for an empty offence!")
+      }
+      if (error.toString() === "Error: Server sent 401") {
+        setFailedSearch("You're not logged in! How'd you get here?");
+      }
+      if (error.toString() === "Error: Server sent 500") {
+        setFailedSearch("Please enter a valid offence!");
+      }
+      console.log(typeof error.toString())
+      console.log(error);
     });
 }
 
@@ -256,7 +265,7 @@ function Search(props) {
       />
 
       {failedSearch !== null ? (
-        <p className="emptySearch">{failedSearch}</p>
+        <p className="errorMessage">{failedSearch}</p>
       ) : null}
     </div>
   );
@@ -349,7 +358,7 @@ function DisplaySearch(props) {
       <input
         type="text"
         className="form-control form-control-lg"
-        placeholder="Search"
+        placeholder="Filter by LGA"
         onChange={filterList}
       />
       <Chart
@@ -455,6 +464,8 @@ function App() {
   const [login, setLogin] = useState(true);
   const [offenceList, setOffences] = useState([]);
   const [token, setToken] = useState("");
+  const [repopulateEmail, setEmail] = useState("");
+  const [repopulatePassword, setPassword] = useState("");
   const { offences, error, loading } = UseRequest(
     "https://cab230.hackhouse.sh/offences"
   );
@@ -481,7 +492,9 @@ function App() {
         handleToken={handleToken}
         token={token}
         clearToken={clearToken}
-      /> : <RegisterForm setLogin={setLogin} token={token} />}
+        repopulateEmail={repopulateEmail}
+        repopulatePassword={repopulatePassword}
+      /> : <RegisterForm setLogin={setLogin} token={token} setEmail={setEmail} setPassword={setPassword} />}
 
 
 

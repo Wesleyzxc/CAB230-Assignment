@@ -161,6 +161,9 @@ function Search(props) {
     <div className="Search">
       <form
         onSubmit={event => {
+          if (searchParam === "") {
+            props.toggleOffence();
+          }
           event.preventDefault();
           setsearchLoad(true);
           searchRequest(
@@ -459,7 +462,7 @@ function AfterLoginPage(props) {
         </button>
         <GridOffence offenceList={props.offenceList} />
         <div className="lockLogin">
-          <Search token={props.token} />
+          <Search token={props.token} toggleOffence={props.toggleOffence} />
         </div>
       </div>
     );

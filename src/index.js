@@ -10,9 +10,10 @@ function Chart(props) {
   const [monthlyData, setMonthlyData] = useState([]);
   let crimeCount = [];
   let areaCount = [];
+  // So that graph doesn't assign to first LGA if areaParam is specified
   props.searchResult.map(each => {
     crimeCount.push(each.total);
-    areaCount.push(each.LGA); // So that graph doesn't assign to first LGA if areaParam is specified
+    areaCount.push(each.LGA); 
   });
 
   const data = {
@@ -53,6 +54,7 @@ function searchRequest(
   yearParam,
   monthParam
 ) {
+  // Generating url for get request
   let url = "https://cab230.hackhouse.sh/search?offence=" + searchParam;
   if (areaParam !== "") {
     url += "&area=" + areaParam;
@@ -91,6 +93,7 @@ function searchRequest(
     .catch(function (error) {
       setsearchLoad(false);
       setResults([]);
+      // Error catching different error codes
       if (error.toString() === "Error: Server sent 400") {
         setFailedSearch("You can't search for an empty offence!")
       }
@@ -143,6 +146,7 @@ function Search(props) {
 
   const [searchLoad, setsearchLoad] = useState(false);
 
+  // Fetch request for search filters
   const { areas } = UseRequest(
     "https://cab230.hackhouse.sh/areas"
   );
@@ -203,9 +207,11 @@ function Search(props) {
           Search
         </button>
 
+        
         <button
           type="button"
           onClick={() => {
+            // Clear button that clears every parameter on click
             setResults([]);
             setFailedSearch(null);
             setsearchLoad(false);
@@ -302,6 +308,7 @@ function DisplaySearch(props) {
     return <p className="errorMessage">Current search is empty</p>;
   }
 
+  // Two sort function that alternates between ascending/ descending 
 
   function sortHeader(e) {
     if (sorted) {
@@ -347,10 +354,6 @@ function DisplaySearch(props) {
     props.setResults(updatedList);
   };
 
-  // if (props.searchResult.length === 0 && props.firstSearch === true) {
-  //   return <p className="emptySearch" />;
-  // }
-
   return (
     <div className="displaySearch">
       <div>
@@ -370,7 +373,6 @@ function DisplaySearch(props) {
       />
 
       <Maps addressPoints={latLong} showMap={showMap} />
-      {/* {props.searchResult.length < 1 ? null : <Maps addressPoints={latLong} showMap={showMap} />} */}
 
       <table id="resultTable">
         <thead>

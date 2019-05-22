@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
-import ReactDOM from "react-dom";
 import "./api.css";
 
+/**
+ * Get request that returns json of response
+ * @param {string} url url to fetch from
+ */
 function GetRequest(url) {
     return fetch(url)
         .then(function (response) {
@@ -15,6 +18,12 @@ function GetRequest(url) {
         });
 }
 
+
+/**
+ * Component that sets returned json from GetRequest
+ * @param {string} url that is passed to GetRequest
+ * @returns array of items that is used for filtering, and error/ loading for handling
+ */
 export function UseRequest(url) {
     const [offences, setOffences] = useState([]);
     const [areas, setAreas] = useState([]);
@@ -41,15 +50,24 @@ export function UseRequest(url) {
     }, []);
 
     return {
-        offences, areas, years, genders, ages, error: null, loading
+        offences, areas, years, genders, ages, error, loading
     }
 }
 
-function fetchRegister(name, password, setRegister, setEmail, setPassword, setLogin) {
+/**
+ * Component that handles registration
+ * @param {string} email email of registration
+ * @param {string} password password of email
+ * @param {setState} setRegister sets staate returned message
+ * @param {setState} setEmail sets state to email
+ * @param {setState} setPassword sets state to password
+ * @param {setState} setLogin sets boolean state if successful
+ */
+function fetchRegister(email, password, setRegister, setEmail, setPassword, setLogin) {
 
     fetch("https://cab230.hackhouse.sh/register", {
         method: "POST",
-        body: 'email=' + name + '&password=' + password,
+        body: 'email=' + email + '&password=' + password,
         headers: {
             "Content-type": "application/x-www-form-urlencoded"
         }
@@ -63,7 +81,7 @@ function fetchRegister(name, password, setRegister, setEmail, setPassword, setLo
         .then(function (result) {
             // console.log(result); // register message 
             if (result) {
-                setEmail(name);
+                setEmail(email);
                 setPassword(password);
                 setLogin(true);
                 setRegister("You've successfully registered! Log in to search what you need");
@@ -77,6 +95,11 @@ function fetchRegister(name, password, setRegister, setEmail, setPassword, setLo
         });
 }
 
+/**
+ * 
+ * @param {*} props set login state to true if successful operation, token to check if user has logged in,
+ * and setEmail and setPassword to save email and password on  successful registration
+ */
 export function RegisterForm(props) {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
@@ -132,14 +155,20 @@ export function RegisterForm(props) {
         </div >
     );
 
-
 }
 
-function getToken(nameStr, passStr, props, handleLoginState) {
+/**
+ * Fetch request for logging in
+ * @param {string} emailStr email address
+ * @param {string} passStr password
+ * @param {props} stores token
+ * @param {setState} sets message based on login status
+ */
+function getToken(emailStr, passStr, props, handleLoginState) {
 
     return fetch("https://cab230.hackhouse.sh/login", {
         method: "POST",
-        body: 'email=' + nameStr + '&password=' + passStr,
+        body: 'email=' + emailStr + '&password=' + passStr,
         headers: {
             "Content-type": "application/x-www-form-urlencoded"
         }
@@ -162,6 +191,11 @@ function getToken(nameStr, passStr, props, handleLoginState) {
         });
 }
 
+/**
+ * 
+ * @param {*} props setLogin, handleToken, if successful, and token to store token. clearToken and clearRepopulate upon logging out
+ * and repopulateEmail/password to save credentials upon successful registration.
+ */
 export function LoginForm(props) {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
@@ -179,6 +213,7 @@ export function LoginForm(props) {
                     setName("");
                     setPassword("");
                     setLoginState(null);
+                    props.clearRepopulate();
                 }}>Log out</button>}
                 <br />
             </div >
@@ -210,7 +245,7 @@ export function LoginForm(props) {
                     onChange={nameEvent => {
                         const { value } = nameEvent.target;
                         setName(value);
-                        if (props.repopulateEmail) { setName(props.repopulateEmail) };
+                        if (props.repopulateEmail) { setName(props.repopulateEmail); props.clearRepopulate(); };
 
                     }}
                 />
@@ -234,6 +269,10 @@ export function LoginForm(props) {
     );
 }
 
+/**
+ * Grids offences that users can choose to query from
+ * @param {*} props 
+ */
 export function GridOffence(props) {
     if (props.offenceList.length <= 0) {
         return null

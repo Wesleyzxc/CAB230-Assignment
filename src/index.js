@@ -1,19 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { RegisterForm, LoginForm, UseRequest, GridOffence } from "./api";
 import "./index.css";
 import { Bar } from "react-chartjs-2";
 import { Map, TileLayer } from "react-leaflet";
-import HeatmapLayer from "../src/HeatmapLayer";
+import HeatmapLayer from 'react-leaflet-heatmap-layer';
 
+/**
+ * Creates a bar chart with props of LGA, total, showChart
+ * @param {*} props string LGA, int total and showChart bool
+ */
 function Chart(props) {
-  const [monthlyData, setMonthlyData] = useState([]);
   let crimeCount = [];
   let areaCount = [];
+
   // So that graph doesn't assign to first LGA if areaParam is specified
   props.searchResult.map(each => {
     crimeCount.push(each.total);
-    areaCount.push(each.LGA); 
+    areaCount.push(each.LGA);
   });
 
   const data = {
@@ -41,19 +45,21 @@ function Chart(props) {
   );
 }
 
-function searchRequest(
-  token,
-  setsearchLoad,
-  setResults,
-  setFilterResults,
-  setFailedSearch,
-  searchParam,
-  areaParam,
-  ageParam,
-  genderParam,
-  yearParam,
-  monthParam
-) {
+/**
+ * Fetch request for search 
+ * @param {string} token token for authentication
+ * @param {boolean} setsearchLoad whether search is completed
+ * @param {setState} setResults set returned result to state
+ * @param {setState} setFilterResults set filtered result to state
+ * @param {string} searchParam offence parameter (required)
+ * @param {string} areaParam area parameter
+ * @param {string} ageParam age parameter
+ * @param {string} genderParam gender parameter
+ * @param {string} yearParam year parameter
+ * @param {string} monthParam month parameter
+ * 
+ */
+function searchRequest(token, setsearchLoad, setResults, setFilterResults, setFailedSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam) {
   // Generating url for get request
   let url = "https://cab230.hackhouse.sh/search?offence=" + searchParam;
   if (areaParam !== "") {
@@ -103,10 +109,14 @@ function searchRequest(
       if (error.toString() === "Error: Server sent 500") {
         setFailedSearch("Please enter a valid offence!");
       }
-      // console.log(error);
     });
 }
 
+
+/**
+ *  Generates drop down menu for search filters
+ * @param {*} props set parameter state, name of filter, array of items that can be filtered and id
+ */
 function SearchFilter(props) {
   return (
     <div className="searchFilters">
@@ -130,6 +140,11 @@ function SearchFilter(props) {
   );
 }
 
+/**
+ * Search component that allows filtering of search and display search 
+ * @param {string} token for authentication
+ * @param {setState} toggleOffence for toggling offence list
+ */
 function Search(props) {
   const [searchResult, setResults] = useState([]);
   const [searchFiltered, setFilterResults] = useState([]);
@@ -170,19 +185,8 @@ function Search(props) {
           }
           event.preventDefault();
           setsearchLoad(true);
-          searchRequest(
-            props.token,
-            setsearchLoad,
-            setResults,
-            setFilterResults,
-            setFailedSearch,
-            searchParam,
-            areaParam,
-            ageParam,
-            genderParam,
-            yearParam,
-            monthParam
-          );
+          setFirstSearch(false);
+          searchRequest(props.token, setsearchLoad, setResults, setFilterResults, setFailedSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam);
           // setResults(search);
         }}
       >
@@ -207,7 +211,7 @@ function Search(props) {
           Search
         </button>
 
-        
+
         <button
           type="button"
           onClick={() => {
@@ -262,7 +266,6 @@ function Search(props) {
       <br />
       <br />
 
-      {searchLoad ? <div className="loader" /> : null}
 
       <DisplaySearch
         setResults={setResults}
@@ -275,17 +278,27 @@ function Search(props) {
       {failedSearch !== null ? (
         <p className="errorMessage">{failedSearch}</p>
       ) : null}
+      {searchLoad ? <div className="loader" /> : null}
+
     </div>
   );
 }
 
+/**
+ * Function to clear each filter based on ID
+ * @param {id} filterID id of filter that needs to be cleared
+ */
 function clearSearch(filterID) {
   let element = document.getElementById(filterID);
   element.value = "";
 }
 
+/**
+ * Display search component with charts, maps and sortable tables
+ * @param {*} props array of searchResults and filtered search, setState to set results after sorting, areas for chart labels
+ * and boolean for tracking first search results which is empty
+ */
 function DisplaySearch(props) {
-  const [LGA, setLGA] = useState("");
   const [showChart, setShowChart] = useState(false);
   const [sorted, setSorted] = useState(false);
   const [sort, setSort] = useState(false);
@@ -294,6 +307,7 @@ function DisplaySearch(props) {
     showChart === false ? setShowChart(true) : setShowChart(false);
   };
 
+  // Creating an array of lat + long for mapping
   let latLong = [];
   props.searchResult.map(search =>
     latLong.push([search.lat, search.lng, search.total])
@@ -303,13 +317,11 @@ function DisplaySearch(props) {
 
   };
 
-
   if (props.searchResult.length === 0 && props.firstSearch === false) {
     return <p className="errorMessage">Current search is empty</p>;
   }
 
-  // Two sort function that alternates between ascending/ descending 
-
+  // Two sort functions that alternates between ascending/ descending 
   function sortHeader(e) {
     if (sorted) {
       props.searchResult.sort(function (a, b) {
@@ -394,8 +406,11 @@ function DisplaySearch(props) {
   );
 }
 
+/**
+ * Creates a heatmap of total offences
+ * @param {*} props accepts array of addressPoints and boolean to toggle map
+ */
 function Maps(props) {
-  let layerHidden = false;
   let radius = 8;
   let blur = 8;
   let max = 1;
@@ -455,6 +470,10 @@ function Maps(props) {
   );
 }
 
+/**
+ * Component that renders after logging in to allow search and display results
+ * @param {*} props token for authentication, array of offences and toggle offence for display
+ */
 function AfterLoginPage(props) {
   if (props.token !== "") {
     return (
@@ -474,7 +493,7 @@ function AfterLoginPage(props) {
 }
 
 function App() {
-  document.title = "Search crime";
+  document.title = "CAB203 Assignment";
   const [login, setLogin] = useState(true);
   const [offenceList, setOffences] = useState([]);
   const [token, setToken] = useState("");
@@ -489,6 +508,13 @@ function App() {
       <div className="loader" />
     );
   }
+  // Fetches data again
+  while (error) {
+    const { offences, error, loading } = UseRequest(
+      "https://cab230.hackhouse.sh/offences"
+    );
+    return { offences, error, loading };
+  }
   const handleToken = event => {
     setToken(event);
   };
@@ -499,6 +525,11 @@ function App() {
     offenceList.length > 0 ? setOffences([]) : setOffences(offences);
   };
 
+  const clearRepopulate = () => {
+    setEmail("");
+    setPassword("");
+  }
+
   return (
     <div className="App">
       {login ? <LoginForm
@@ -508,6 +539,7 @@ function App() {
         clearToken={clearToken}
         repopulateEmail={repopulateEmail}
         repopulatePassword={repopulatePassword}
+        clearRepopulate={clearRepopulate}
       /> : <RegisterForm setLogin={setLogin} token={token} setEmail={setEmail} setPassword={setPassword} />}
 
 

@@ -44,8 +44,6 @@ code {
   color: gray;
 }
 
-
-
 button{
   background-color: #e7e7e7;
   color: black;
@@ -123,18 +121,26 @@ button:hover{
 }
 
 .displaySearch th{
-  align: center;
   user-select: none; /* supported by Chrome and Opera */
   -webkit-user-select: none; /* Safari */
   -khtml-user-select: none; /* Konqueror HTML */
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* Internet Explorer/Edge */
-} 
-.displaySearch tbody{
-  align: center;
+  cursor: pointer;
+  border: 1px solid;
+  padding: 16px;
 } 
 
-table {
+.displaySearch tr{ 
+  background: lightgray;
+}
+
+.displaySearch tbody tr{ 
+  background: white;
+}
+
+
+.displaySearch table {
   margin-left: auto;
   margin-right: auto;
   margin-top: 10px;
@@ -142,27 +148,19 @@ table {
   border: 1px solid #ddd;
 }
 
-.displaySearch th {
-  cursor: pointer;
-  background: lightgray;
-  border: 1px solid;
-  margin-top: 10px;
-}
-
-th, td {
+.displaySearch td {
   text-align: left;
   padding: 16px;
+  border: 1px solid #ddd;
 }
 
-tr:nth-child(even) {
-  background-color: grey;
-}
 
 /* https://www.w3schools.com/howto/howto_css_loader.asp */
 .loader {
   position: absolute;
   left: 50%;
-  top: 50%;
+  right: 50%;
+  top: 70%;
   z-index: 1;
   width: 25px;
   height: 25px;

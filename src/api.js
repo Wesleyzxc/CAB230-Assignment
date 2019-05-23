@@ -63,7 +63,7 @@ export function UseRequest(url) {
  * @param {setState} setPassword sets state to password
  * @param {setState} setLogin sets boolean state if successful
  */
-function fetchRegister(email, password, setRegister, setEmail, setPassword, setLogin) {
+function fetchRegister(email, password, setRegister, setSuccess) {
 
     fetch("https://localhost/register", {
         method: "POST",
@@ -80,9 +80,7 @@ function fetchRegister(email, password, setRegister, setEmail, setPassword, setL
         })
         .then(function (result) {
             if (result) {
-                setEmail(email);
-                setPassword(password);
-                setLogin(true);
+                setSuccess(true);
                 setRegister("You've successfully registered! Log in to search what you need");
             }
             else { setRegister("This email has been registered before, try logging in!") }
@@ -103,22 +101,30 @@ export function RegisterForm(props) {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [registerState, setRegisterState] = useState(null);
-    const setRegister = (event) => {
-        setRegisterState(event)
-    }
+    const [registerSuccess, setSuccess] = useState(false);
+
+    useEffect(() => {
+        props.setLogin(registerSuccess);
+    })
+
     if (props.token !== "") {
         return null
     }
     return (
         <div className="RegisterForm">
-            <h3>Register <button onClick={() => { props.setLogin(true) }}>Registered? Click to log in</button></h3>
+            <h3>Register <button onClick={() => {
+                props.setLogin(true)
+            }
+            }>Registered? Click to log in</button></h3>
 
             <form
                 onSubmit={(event) => {
                     event.preventDefault();
                     if (name !== "" && password !== "") {
                         // console.log(name, password);
-                        fetchRegister(name, password, setRegister, props.setEmail, props.setPassword, props.setLogin);
+                        fetchRegister(name, password, setRegisterState, setSuccess);
+                        props.setEmail(name);
+                        props.setPassword(password);
                     }
                     else {
                         setRegisterState("Your email and password field can't be empty!")
@@ -183,7 +189,6 @@ function getToken(emailStr, passStr, props, handleLoginState) {
             handleLoginState("You have logged in successfully!")
         })
         .catch(function (error) {
-            console.log(error); //returns error
             props.clearToken();
             handleLoginState("Your email and password does not match.")
         });
@@ -198,11 +203,14 @@ export function LoginForm(props) {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [loginState, setLoginState] = useState(null);
-
     const handleLoginState = (event) => {
         setLoginState(event);
     }
-    // console.log(props.token);
+    useEffect(() => {
+        setName(props.repopulateEmail);
+        setPassword(props.repopulatePassword);
+    }, []);
+
     if (props.token !== "") {
         return (
             <div className="loggedIn" >
@@ -212,7 +220,7 @@ export function LoginForm(props) {
                     setName("");
                     setPassword("");
                     setLoginState(null);
-                    props.clearRepopulate();
+                    // props.clearRepopulate();
                 }}>Log out</button>}
                 <br />
             </div >
@@ -243,18 +251,20 @@ export function LoginForm(props) {
                     onChange={nameEvent => {
                         const { value } = nameEvent.target;
                         setName(value);
-                        if (props.repopulateEmail) { setName(props.repopulateEmail); props.clearRepopulate(); };
 
                     }}
                 />
                 <br></br>
 
                 <label htmlFor="password"> Your password:  </label>
-                <input placeholder="Enter your password" id="password" password="password" type="password" value={password}
+                <input placeholder="Enter your password"
+                    id="password"
+                    password="password"
+                    type="password"
+                    value={password}
                     onChange={passwordEvent => {
                         const { value } = passwordEvent.target;
                         setPassword(value);
-                        if (props.repopulatePassword) { setPassword(props.repopulatePassword) }
                     }} />
 
                 {loginState != null ? <p className="errorMessage">{loginState}</p> : null}

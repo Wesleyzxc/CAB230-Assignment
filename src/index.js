@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { RegisterForm, LoginForm, UseRequest, GridOffence } from "./api";
 import "./index.css";
@@ -505,17 +505,14 @@ function App() {
     "https://localhost/offences"
   );
 
+  useEffect(() => {
+    console.log(login);
+  }, login)
+
   if (loading) {
     return (
       <div className="loader" />
     );
-  }
-  // Fetches data again
-  while (error) {
-    const { offences, error, loading } = UseRequest(
-      "https://localhost/offences"
-    );
-    return { offences, error, loading };
   }
   const handleToken = event => {
     setToken(event);

@@ -61,7 +61,7 @@ function Chart(props) {
  */
 function searchRequest(token, setsearchLoad, setResults, setFilterResults, setFailedSearch, searchParam, areaParam, ageParam, genderParam, yearParam, monthParam) {
   // Generating url for get request
-  let url = "https://cab230.hackhouse.sh/search?offence=" + searchParam;
+  let url = "https://localhost/search?offence=" + searchParam;
   if (areaParam !== "") {
     url += "&area=" + areaParam;
   }
@@ -80,7 +80,7 @@ function searchRequest(token, setsearchLoad, setResults, setFilterResults, setFa
   fetch(url, {
     method: "GET",
     headers: {
-      Authorization: "Bearer " + token,
+      "Authorization": 'Bearer ' + token,
       "Content-Type": "application/x-www-form-urlencoded"
     }
   })
@@ -163,16 +163,16 @@ function Search(props) {
 
   // Fetch request for search filters
   const { areas } = UseRequest(
-    "https://cab230.hackhouse.sh/areas"
+    "https://localhost/areas"
   );
   const { ages } = UseRequest(
-    "https://cab230.hackhouse.sh/ages"
+    "https://localhost/ages"
   );
   const { years } = UseRequest(
-    "https://cab230.hackhouse.sh/years"
+    "https://localhost/years"
   );
   const { genders } = UseRequest(
-    "https://cab230.hackhouse.sh/genders"
+    "https://localhost/genders"
   );
 
 
@@ -275,10 +275,12 @@ function Search(props) {
         searchFiltered={searchFiltered}
       />
 
+      {searchLoad ? <div className="loader" /> : null}
+
       {failedSearch !== null ? (
         <p className="errorMessage">{failedSearch}</p>
       ) : null}
-      {searchLoad ? <div className="loader" /> : null}
+
 
     </div>
   );
@@ -500,7 +502,7 @@ function App() {
   const [repopulateEmail, setEmail] = useState("");
   const [repopulatePassword, setPassword] = useState("");
   const { offences, error, loading } = UseRequest(
-    "https://cab230.hackhouse.sh/offences"
+    "https://localhost/offences"
   );
 
   if (loading) {
@@ -511,7 +513,7 @@ function App() {
   // Fetches data again
   while (error) {
     const { offences, error, loading } = UseRequest(
-      "https://cab230.hackhouse.sh/offences"
+      "https://localhost/offences"
     );
     return { offences, error, loading };
   }

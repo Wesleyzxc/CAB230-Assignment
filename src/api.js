@@ -65,7 +65,7 @@ export function UseRequest(url) {
  */
 function fetchRegister(email, password, setRegister, setEmail, setPassword, setLogin) {
 
-    fetch("https://cab230.hackhouse.sh/register", {
+    fetch("https://localhost/register", {
         method: "POST",
         body: 'email=' + email + '&password=' + password,
         headers: {
@@ -79,7 +79,6 @@ function fetchRegister(email, password, setRegister, setEmail, setPassword, setL
             throw new Error(response.status);
         })
         .then(function (result) {
-            // console.log(result); // register message 
             if (result) {
                 setEmail(email);
                 setPassword(password);
@@ -166,7 +165,7 @@ export function RegisterForm(props) {
  */
 function getToken(emailStr, passStr, props, handleLoginState) {
 
-    return fetch("https://cab230.hackhouse.sh/login", {
+    return fetch("https://localhost/login", {
         method: "POST",
         body: 'email=' + emailStr + '&password=' + passStr,
         headers: {
@@ -180,7 +179,6 @@ function getToken(emailStr, passStr, props, handleLoginState) {
             throw new Error(response.status);
         })
         .then(function (result) {
-            // console.log(result.status)
             props.handleToken(result.access_token);
             handleLoginState("You have logged in successfully!")
         })
@@ -204,6 +202,7 @@ export function LoginForm(props) {
     const handleLoginState = (event) => {
         setLoginState(event);
     }
+    // console.log(props.token);
     if (props.token !== "") {
         return (
             <div className="loggedIn" >
@@ -228,7 +227,6 @@ export function LoginForm(props) {
             <form
                 onSubmit={(event) => {
                     event.preventDefault();
-                    //console.log(name, password); // form inputs
                     if (name !== "" && password !== "")
                         getToken(name, password, props, handleLoginState);
                     else {
